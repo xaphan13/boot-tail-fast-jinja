@@ -1,0 +1,38 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
+
+from core.config import settings, SqliteDsn
+from example_sql.db_helper import db_helper_inst
+from utils.docs import reg_docs_routes
+
+from config_log import logF
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+    logF.info(f"startup lifespan :\n{settings.db.url=} \n{app.title=}")
+    if isinstance(settings.db.url, SqliteDsn):
+        logF.warning(f"used test sqlite dataBase : {settings.db.url=}")
+    yield
+    # shutdown
+    await db_helper_inst.dispose()
+
+
+def create_app(custom_docs_url: bool = False) -> FastAPI:
+    docs_url, redoc_url = (None, None) if custom_docs_url else ("/docs", "/redoc")
+
+    app = FastAPI(
+        title="Example Request Parameters Extraction",
+        default_response_class=ORJSONResponse,
+        lifespan=lifespan,
+        docs_url=docs_url,
+        redoc_url=redoc_url,
+    )
+
+    if custom_docs_url:
+        reg_docs_routes(app)
+
+    return app

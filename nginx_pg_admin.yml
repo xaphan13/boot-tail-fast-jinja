@@ -1,0 +1,62 @@
+version: "3.7"
+
+services:
+
+#----------------------------------------------------------------------------------
+    db:
+        container_name: postgresql_db_new
+        image: postgres:16
+        restart: always
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.2
+        ports:
+            - "7032:5432"
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=${DB_NAME}
+        volumes:
+            - ./pg_db:/var/lib/postgresql/data/
+
+#----------------------------------------------------------------------------------
+    pgadmin:
+        container_name: pgadmin_new
+        image: dpage/pgadmin4
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.40
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+            - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+            - PGADMIN_LISTEN_ADDRESS=0.0.0.0
+            - PGADMIN_LISTEN_PORT=5123
+
+#----------------------------------------------------------------------------------
+    redis:
+        container_name: redis_new
+        image: redis:6.2-alpine
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.4
+        ports:
+            - "7079:6379"
+
+#----------------------------------------------------------------------------------
+    nginx:
+        container_name: nginx_new
+        build:
+            context: .
+            dockerfile: ./nginx/Docker-nginx
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.8
+        ports:
+            - "443:443"
+        restart: always
+
+#----------------------------------------------------------------------------------
+networks:
+    my_network:
+        name: app_net_new
+        external: true
