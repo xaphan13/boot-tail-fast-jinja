@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session
 from typing import Optional, Generic, TypeVar, Type
 from pydantic import BaseModel
 
-from gem_crud_best.model_new_many_db import (
+from gem_crud_best.old.model_new_many_db import (
     Base,
     Order,
     Product,
 )
 
-from gem_crud_best.schema_many_sql import (
+from gem_crud_best.old.schema_many_sql import (
     OrderCreateBody,
     OrderGetQuery,
     OrderUpdateBody,
@@ -187,3 +187,35 @@ class ProductCRUD(
 
 
 product_db = ProductCRUD(Product)
+
+
+#
+# # ========= async crud for Order and Product =========== #
+# class AsyncOrderCRUD(
+#     AsyncBaseCRUD[
+#         Order,
+#         OrderCreateBody,
+#         OrderGetQuery,
+#         OrderUpdateBody,
+#         OrderGetQuery,
+#     ]
+# ):
+#     pass
+#
+#
+# order_async = AsyncOrderCRUD(Order)
+#
+#
+# class AsyncProductCRUD(
+#     AsyncBaseCRUD[
+#         Product,
+#         ProductCreateBody,
+#         ProductGetQuery,
+#         ProductUpdateBody,
+#         ProductGetQuery,
+#     ]
+# ):
+#     pass
+#
+#
+# product_async = AsyncProductCRUD(Product)

@@ -9,22 +9,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Generic, TypeVar, Type, Sequence
 from pydantic import BaseModel
 
-from gem_crud_best.model_new_many_db import (
-    AddResult,
+from gem_crud_best.model_join import (
+    JoinAddress,
+    JoinPerson,
     Base,
-    Order,
-    Product,
 )
 
-from gem_crud_best.schema_many_sql import (
-    OrderCreateBody,
-    OrderGetQuery,
-    OrderUpdateBody,
-    ProductCreateBody,
-    ProductGetQuery,
-    ProductUpdateBody,
+from gem_crud_best.schema_join import (
+    GetJoinAddress,
+    CreateJoinAddress,
+    GetJoinPerson,
+    CreateJoinPerson,
 )
-
 
 SqlType = TypeVar("SqlType", bound=Base)
 CreateType = TypeVar("CreateType", bound=BaseModel)
@@ -33,6 +29,20 @@ UpdateType = TypeVar("UpdateType", bound=BaseModel)
 DeleteType = TypeVar("DeleteType", bound=BaseModel)
 
 
+# ======= add result class =======
+class AddResult:
+    def __init__(self, model: SqlType, result: bool = True, reason: str = "OK"):
+        self.result: bool = result
+        self.model: SqlType = model
+        self.reason: str = reason
+
+    def str_detail(self) -> str:
+        begin_D = self.reason.find("DETAIL: ")
+        end_D = self.reason.find(".", begin_D)
+        return self.reason[begin_D:end_D]
+
+
+# ======= async base crud class =======
 class AsyncBaseCRUD(
     Generic[
         SqlType,
@@ -228,32 +238,34 @@ class AsyncBaseCRUD(
         return res
 
 
-# ========= async crud for Order and Product =========== #
-class AsyncOrderCRUD(
+# ======= crud for join address =======
+class AsyncJoinAddressCRUD(
     AsyncBaseCRUD[
-        Order,
-        OrderCreateBody,
-        OrderGetQuery,
-        OrderUpdateBody,
-        OrderGetQuery,
+        JoinAddress,
+        CreateJoinAddress,
+        GetJoinAddress,
+        CreateJoinAddress,
+        GetJoinAddress,
     ]
 ):
-    pass
+    def get_model(self):
+        return self.model
 
 
-order_async = AsyncOrderCRUD(Order)
+addrDB = AsyncJoinAddressCRUD(JoinAddress)
 
 
-class AsyncProductCRUD(
+class AsyncJoinPersonCRUD(
     AsyncBaseCRUD[
-        Product,
-        ProductCreateBody,
-        ProductGetQuery,
-        ProductUpdateBody,
-        ProductGetQuery,
+        JoinPerson,
+        CreateJoinPerson,
+        GetJoinPerson,
+        CreateJoinPerson,
+        GetJoinPerson,
     ]
 ):
-    pass
+    def get_model(self):
+        return self.model
 
 
-product_async = AsyncProductCRUD(Product)
+personDB = AsyncJoinPersonCRUD(JoinPerson)
