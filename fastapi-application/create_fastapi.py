@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from core.config import settings, SqliteDsn
-from example_sql.db_helper import db_helper_inst
+from db_core.db_async import db_manager
 from utils.docs import reg_docs_routes
 
 from config_log import logF
@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
         logF.warning(f"used test sqlite dataBase : {settings.db.url=}")
     yield
     # shutdown
-    await db_helper_inst.dispose()
+    await db_manager.engine_dispose()
 
 
 def create_app(custom_docs_url: bool = False) -> FastAPI:

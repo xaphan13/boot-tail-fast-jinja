@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Annotated
+from datetime import datetime, timezone
 
 from sqlalchemy import (
     String,
@@ -8,8 +9,6 @@ from sqlalchemy import (
 )
 
 from sqlalchemy.orm import mapped_column
-
-from datetime import datetime, timezone
 
 
 int_primary_key = Annotated[
@@ -20,10 +19,12 @@ int_primary_key = Annotated[
     ),
 ]
 
+
 str_len_100 = Annotated[
     str,
     mapped_column(String(100)),
 ]
+
 
 time_stamp_utc = Annotated[
     datetime,

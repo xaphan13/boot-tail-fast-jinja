@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from fastapi import Depends
 
 from sqlalchemy import event
 
@@ -9,10 +9,13 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 
+from typing import AsyncGenerator, Annotated
+from contextlib import asynccontextmanager
+
 from core.config import settings, SqliteDsn
 
 
-class DatabaseHelper:
+class AsyncDbManager:
     def __init__(
         self,
         url: str,
@@ -21,6 +24,9 @@ class DatabaseHelper:
         pool_size: int = 5,
         max_overflow: int = 10,
     ) -> None:
+        # Создание асинхронного движка SQLAlchemy
+        # pool_size: размер пула подключений
+        # max_overflow: максимальное количество дополнительных соединений
         self.engine: AsyncEngine = create_async_engine(
             url=url,
             echo=echo,
@@ -38,6 +44,10 @@ class DatabaseHelper:
                 cursor.execute("PRAGMA foreign_keys=ON")
                 cursor.close()
 
+        # Фабрика сессий для асинхронной работы с БД
+        # autoflush=False — не отправлять изменения в БД до завершения транзакции
+        # autocommit=False — отключить авто-подтверждение транзакций
+        # expire_on_commit=False — сохранять состояние объектов после транзакции
         self.session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
             bind=self.engine,
             autoflush=False,
@@ -45,18 +55,26 @@ class DatabaseHelper:
             expire_on_commit=False,
         )
 
-    async def dispose(self) -> None:
+    async def engine_dispose(self) -> None:
         await self.engine.dispose()
 
-    async def session_getter(self) -> AsyncGenerator[AsyncSession, None]:
+    @asynccontextmanager
+    async def get_async_session(self) -> AsyncGenerator[AsyncSession, None]:
         async with self.session_factory() as session:
-            yield session
+            try:
+                yield session
+            except Exception:
+                await session.rollback()
+                raise
 
 
-db_helper_inst = DatabaseHelper(
+db_manager = AsyncDbManager(
     url=str(settings.db.url),
     echo=settings.db.echo,
     echo_pool=settings.db.echo_pool,
     pool_size=settings.db.pool_size,
     max_overflow=settings.db.max_overflow,
 )
+
+
+CurrentSession = Annotated[AsyncSession, Depends(db_manager.get_async_session)]

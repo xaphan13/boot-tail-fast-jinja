@@ -1,6 +1,4 @@
 from __future__ import annotations
-from typing import Annotated
-from datetime import datetime, timezone
 
 from sqlalchemy import (
     Column,
@@ -8,64 +6,18 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     ForeignKey,
-    DateTime,
-    func,
 )
 
 from sqlalchemy.orm import (
     Mapped,
     relationship,
-    DeclarativeBase,
-    mapped_column,
 )
 
+from db_core.type_for_models import time_stamp_utc
 
-# ========= base class for async crud =========== #
-from gem_crud_best.async_crud_base import SqlType
-
-
-class AddResult:
-    def __init__(self, model: SqlType, result: bool = True, reason: str = "OK"):
-        self.result: bool = result
-        self.model: SqlType = model
-        self.reason: str = reason
-
-    def str_detail(self) -> str:
-        begin_D = self.reason.find("DETAIL: ")
-        end_D = self.reason.find(".", begin_D)
-        return self.reason[begin_D:end_D]
+from db_core.model_base import Base
 
 
-# ========= types for mapped columns =========== #
-int_primary_key = Annotated[
-    int,
-    mapped_column(
-        primary_key=True,
-        index=True,
-    ),
-]
-
-str_len_100 = Annotated[
-    str,
-    mapped_column(String(100)),
-]
-
-time_stamp_utc = Annotated[
-    datetime,
-    mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        server_default=func.now(),
-    ),
-]
-
-
-# ========= base class for models =========== #
-class Base(DeclarativeBase):
-    __abstract__ = True
-
-
-# ========= models for database =========== #
 class Order(Base):
     __tablename__ = "orders"
 
@@ -78,6 +30,7 @@ class Order(Base):
     created_at: Mapped[time_stamp_utc]
     promocode = Column(String(50))
 
+    # association between Order -> Association
     products_details = relationship(
         "OrderProductAssociation",
         back_populates="order",
@@ -85,6 +38,7 @@ class Order(Base):
         overlaps="orders",
     )
 
+    # association many to many
     products = relationship(
         "Product",
         secondary="order_product_association",
@@ -109,6 +63,7 @@ class Product(Base):
     description = Column(String(100))
     price = Column(Integer())
 
+    # association between Product -> Association
     orders_details = relationship(
         "OrderProductAssociation",
         back_populates="product",
@@ -116,6 +71,7 @@ class Product(Base):
         overlaps="products",
     )
 
+    # association many to many
     orders = relationship(
         "Order",
         secondary="order_product_association",
@@ -130,7 +86,6 @@ class Product(Base):
         )
 
 
-# ========= models for association between Order and Product =========== #
 class OrderProductAssociation(Base):
     __tablename__ = "order_product_association"
     __table_args__ = (UniqueConstraint("order_id", "product_id", name="idx_unique_order_product"),)
@@ -156,12 +111,14 @@ class OrderProductAssociation(Base):
         nullable=False,
     )
 
+    # association between Assocation -> Order
     order = relationship(
         "Order",
         back_populates="products_details",
         overlaps="orders, products",
     )
 
+    # association between Assocation -> Product
     product = relationship(
         "Product",
         back_populates="orders_details",

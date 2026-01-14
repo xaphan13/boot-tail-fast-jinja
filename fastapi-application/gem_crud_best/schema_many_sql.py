@@ -9,8 +9,6 @@ from enum import Enum
 # ***************************************************************************************
 # QUERY : get-create to dataBase =================================================
 # ---------------------------------------------------------------------------------------
-
-
 # schemas is used when : get(GET), create(POST), update(PUT) a Order(Base)
 class OrderGetQuery(BaseModel):
     id: Optional[int] = None
@@ -36,6 +34,9 @@ class OrderGetOrderbyList(BaseModel):
     order_by_list: List[OrderGetAllOrderbyQuery] = ["id"]
 
 
+# ---------------------------------------------------------------------------------------
+
+
 # schemas are used when : get(GET), create(POST), update(PUT) a Product(Base)
 class ProductGetQuery(BaseModel):
     id: Optional[int] = 0
@@ -56,6 +57,9 @@ class ProductUpdateBody(BaseModel):
     price: int | str = ""
 
 
+# ---------------------------------------------------------------------------------------
+
+
 # schemas are used when : get(GET) a OrderProductAssociation(Base)
 class AssociationGetQuery(BaseModel):
     id: Optional[int] = 0
@@ -65,15 +69,18 @@ class AssociationGetQuery(BaseModel):
     product_id: Optional[int] = 0
 
 
-# ***************************************************************************************
-# RESPONSE : response_model from dataBase =================================================
 # ---------------------------------------------------------------------------------------
 
 
-# base schema for Order and Product
+# ***************************************************************************************
+# RESPONSE : response_model from dataBase =================================================
+# ---------------------------------------------------------------------------------------
 class OrderProductBase(BaseModel):
     class Config:
         from_attributes = True
+
+
+# ---------------------------------------------------------------------------------------
 
 
 # schema is used as a response_model for Order(Base)
@@ -101,6 +108,9 @@ class AssociationResp(BaseModel):
 
 
 # ---------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------
 # schema Product Response = with -> relationship('Order', secondary='order_product_association')
 class ProductRespWithOrders(ProductResp):
     orders: List[OrderResp]
@@ -113,6 +123,9 @@ class ProductRespWithsAssoc(ProductResp):
 class ProductRespWithOrdersAssoc(ProductResp):
     orders: List[OrderResp]
     orders_details: List[AssociationResp]
+
+
+# ---------------------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------------------
@@ -135,7 +148,9 @@ class OrderRespWithProductsDetails(OrderResp):
 
 
 # ---------------------------------------------------------------------------------------
-# types for response_model
+
+
+# ---------------------------------------------------------------------------------------
 class TypeResponse(int, Enum):
     a = 1
     b = 2

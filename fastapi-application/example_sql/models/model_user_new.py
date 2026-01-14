@@ -11,7 +11,7 @@ from sqlalchemy.orm import (
 
 from .model_id_pk_mixin import IntIdPkMixin
 
-from .model_base import Base
+from db_core.model_base import Base
 
 
 class TestUser(IntIdPkMixin, Base):
