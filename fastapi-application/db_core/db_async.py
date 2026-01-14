@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from typing import AsyncGenerator, Annotated
-from contextlib import asynccontextmanager
 
 from core.config import settings, SqliteDsn
 
@@ -58,7 +57,6 @@ class AsyncDbManager:
     async def engine_dispose(self) -> None:
         await self.engine.dispose()
 
-    @asynccontextmanager
     async def get_async_session(self) -> AsyncGenerator[AsyncSession, None]:
         async with self.session_factory() as session:
             try:

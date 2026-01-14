@@ -42,6 +42,7 @@ pg_db/
 db.sqlite3
 .DS_Store
 dist
+*.db
 
 # Flask stuff:
 instance/

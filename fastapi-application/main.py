@@ -7,6 +7,7 @@ from create_fastapi import create_app
 
 from api import router_api
 from example_sql.rout_users import router_users
+from ex_order_product.router_order_product import router_order_one
 
 
 main_app = create_app(
@@ -20,6 +21,10 @@ main_app.include_router(
 main_app.include_router(
     router_users,
     prefix=settings.api.users,
+)
+
+main_app.include_router(
+    router_order_one,
 )
 
 

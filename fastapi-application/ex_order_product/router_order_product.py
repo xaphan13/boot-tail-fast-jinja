@@ -1,33 +1,35 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import Column, Row
+from sqlalchemy import Row
 from sqlalchemy.sql import select, Select, insert, Insert
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, InstrumentedAttribute
 from sqlalchemy.engine import Result
 from typing import Sequence
 
-from .schema_many_sql import (
+from .schema_order_product import (
     OrderCreateBody,
     OrderGetAllOrderbyQuery,
     OrderResp,
-    ProductResp,
     OrderGetQuery,
+    OrderRespWithProducts,
 )
 
-from .model_new_many_db import (
+from .model_order_product import (
     Order,
     Product,
 )
 
 from db_core.db_async import CurrentSession
 
+from config_log import logF
 
-new_many_async_one = APIRouter(prefix="/new_many_async_one", tags=["NEW new_many_async_one"])
+
+router_order_one = APIRouter(prefix="/order_one", tags=["Examples - router_order_one"])
 
 
-# ================================================================================
-# +++++++++++++++++++++++++ added record +++++++++++++++++++++++++
-# ================================================================================
-@new_many_async_one.post("/add_order", response_model=OrderResp)
+# =================================================================
+# +++++++++++++++++++++++++ added Order +++++++++++++++++++++++++ #
+# =================================================================
+@router_order_one.post("/add_order", response_model=OrderResp)
 async def add_order(body: OrderCreateBody, db: CurrentSession):
     new_order: Order = Order(**body.model_dump())
     db.add(new_order)
@@ -38,7 +40,7 @@ async def add_order(body: OrderCreateBody, db: CurrentSession):
     return new_order
 
 
-@new_many_async_one.post("/insert_order", response_model=OrderCreateBody)
+@router_order_one.post("/insert_order", response_model=OrderCreateBody)
 async def insert_order(db: CurrentSession, body: OrderCreateBody):
     stmt: Insert[Order] = insert(Order).values(**body.model_dump())
 
@@ -48,10 +50,10 @@ async def insert_order(db: CurrentSession, body: OrderCreateBody):
     return body
 
 
-# ================================================================================
-# +++++++++++++++++++++++++ get record - condition  +++++++++++++++++++++++++
-# ================================================================================
-@new_many_async_one.get("/get_order_filter_by", response_model=OrderResp)
+# =============================================================================
+# +++++++++++++++++++++++++ get record - condition  +++++++++++++++++++++++++ #
+# =============================================================================
+@router_order_one.get("/get_order_filter_by", response_model=OrderResp)
 async def get_order_filter_by(db: CurrentSession, params: OrderGetQuery = Depends()):
     # stmt: Select[tuple[Order]] = select(Order).filter_by(id=22)
     filter_where = {key: value for key, value in params.model_dump().items() if value is not None}
@@ -67,19 +69,16 @@ async def get_order_filter_by(db: CurrentSession, params: OrderGetQuery = Depend
     raise HTTPException(status_code=422, detail=f"select.filter_by with {filter_where} not found")
 
 
-@new_many_async_one.get("/get_order_where", response_model=OrderResp | list[OrderResp])
+@router_order_one.get("/get_order_where", response_model=OrderResp | list[OrderResp])
 async def get_order_where(db: CurrentSession, params: OrderGetQuery = Depends()):
     # stmt = select(Order).where(Order.id == 22)
     filter_where = [
         getattr(Order, key) == value for key, value in params.model_dump(exclude_none=True).items()
     ]
 
-    # filter_where = [getattr(Order, key) > value
-    #                 for key, value in params.dict(exclude_none=True).items()]
+    stmt: Select[tuple[Order]] = select(Order).where(*filter_where)
 
-    stmt = select(Order).where(*filter_where)
-
-    result = await db.execute(stmt)
+    result: Result[tuple[Order]] = await db.execute(stmt)
 
     # orders: Order = result.scalar()
     # orders: Order = result.scalars().first()
@@ -94,14 +93,16 @@ async def get_order_where(db: CurrentSession, params: OrderGetQuery = Depends())
 # +++++++++++++++++++++++++ get all - order_by +++++++++++++++++++++++++
 # ================================================================================
 # get all Order to the database **********************************************************
-@new_many_async_one.get("/get_all_orders", response_model=list[OrderResp])
+@router_order_one.get("/get_all_orders", response_model=list[OrderResp])
 async def get_all_orders(db: CurrentSession, params: OrderGetAllOrderbyQuery):
     if params == "time":
-        order_by_list_o: list[Column[Order]] = [Order.created_at, Order.id]
+        order_by_list_o: list[InstrumentedAttribute] = [Order.created_at, Order.id]
     elif params == "promocode":
-        order_by_list_o: list[Column[Order]] = [Order.promocode, Order.created_at]
+        order_by_list_o: list[InstrumentedAttribute] = [Order.promocode, Order.created_at]
     else:
-        order_by_list_o: list[Column[Order]] = [Order.id, Order.created_at]
+        order_by_list_o: list[InstrumentedAttribute] = [Order.id, Order.created_at]
+
+    logF.info(f"get_all_orders : {type(order_by_list_o)=}\n{order_by_list_o=}")
 
     stmt: Select[tuple[Order]] = select(Order).order_by(*order_by_list_o)
 
@@ -114,8 +115,8 @@ async def get_all_orders(db: CurrentSession, params: OrderGetAllOrderbyQuery):
 # ================================================================================
 # +++++++++++++++++++++++++ test +++++++++++++++++++++++++
 # ================================================================================
-@new_many_async_one.get("/get_all_test", response_model=list[ProductResp | OrderResp])
-async def get_all_orders(db: CurrentSession, variant: int = 1):
+@router_order_one.get("/get_all_join", response_model=list[OrderRespWithProducts])
+async def get_all_join(db: CurrentSession, variant: int = 1):
     stmt: Select[tuple[Order]] = (
         select(Order)
         .order_by(Order.id)
@@ -124,6 +125,7 @@ async def get_all_orders(db: CurrentSession, variant: int = 1):
     )
     await_result_execute: Result[tuple[Order]] = await db.execute(stmt)
 
+    result_scalars_all: Sequence[Order] = []
     if variant == 1:
         result_scalars_all: Sequence[Order] = await_result_execute.unique().scalars().all()
         order0: Order = result_scalars_all[0]
@@ -136,7 +138,9 @@ async def get_all_orders(db: CurrentSession, variant: int = 1):
         order1: Order = row1[0]
 
     prods0: list[Product] = order0.products
-
     prods1: list[Product] = order1.products
 
-    return [order0] + prods0 + [order1] + prods1
+    logF.info(f"get_all_join : \n{order0=}\n{prods0=}")
+    logF.info(f"get_all_join : \n{order1=}\n{prods1=}")
+
+    return result_scalars_all

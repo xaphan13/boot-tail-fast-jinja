@@ -3,9 +3,10 @@ from pydantic import ConfigDict
 
 
 class UserBase(BaseModel):
-    username: str
-    foo: int
-    bar: int
+    nickname: str
+    firstname: str | None
+    surname: str | None
+    password: str
 
 
 class UserCreate(UserBase):

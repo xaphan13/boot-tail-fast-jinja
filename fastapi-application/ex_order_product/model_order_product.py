@@ -3,7 +3,6 @@ from __future__ import annotations
 from sqlalchemy import (
     Column,
     Integer,
-    String,
     UniqueConstraint,
     ForeignKey,
 )
@@ -13,22 +12,21 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from db_core.type_for_models import time_stamp_utc
+from db_core.type_for_models import (
+    time_stamp_utc,
+    int_primary_key,
+    str_len_50,
+    str_len_100,
+)
 
 from db_core.model_base import Base
 
 
 class Order(Base):
-    __tablename__ = "orders"
-
-    id = Column(
-        Integer(),
-        primary_key=True,
-        index=True,
-    )
+    id: Mapped[int_primary_key]
 
     created_at: Mapped[time_stamp_utc]
-    promocode = Column(String(50))
+    promocode: Mapped[str_len_50 | None]
 
     # association between Order -> Association
     products_details = relationship(
@@ -51,17 +49,11 @@ class Order(Base):
 
 
 class Product(Base):
-    __tablename__ = "products"
+    id: Mapped[int_primary_key]
 
-    id = Column(
-        Integer(),
-        primary_key=True,
-        index=True,
-    )
-
-    name = Column(String(100))
-    description = Column(String(100))
-    price = Column(Integer())
+    name: Mapped[str_len_50]
+    description: Mapped[str_len_100]
+    price: Mapped[int]
 
     # association between Product -> Association
     orders_details = relationship(
@@ -90,11 +82,7 @@ class OrderProductAssociation(Base):
     __tablename__ = "order_product_association"
     __table_args__ = (UniqueConstraint("order_id", "product_id", name="idx_unique_order_product"),)
 
-    id = Column(
-        Integer(),
-        primary_key=True,
-        index=True,
-    )
+    id: Mapped[int_primary_key]
 
     count = Column(Integer(), default=1, server_default="1")
     unit_price = Column(Integer(), default=0, server_default="0")

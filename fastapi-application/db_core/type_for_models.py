@@ -20,12 +20,6 @@ int_primary_key = Annotated[
 ]
 
 
-str_len_100 = Annotated[
-    str,
-    mapped_column(String(100)),
-]
-
-
 time_stamp_utc = Annotated[
     datetime,
     mapped_column(
@@ -33,4 +27,16 @@ time_stamp_utc = Annotated[
         default=lambda: datetime.now(timezone.utc),
         server_default=func.now(),
     ),
+]
+
+
+str_len_50 = Annotated[
+    str,
+    mapped_column(String(50)),
+]
+
+
+str_len_100 = Annotated[
+    str,
+    mapped_column(String(100)),
 ]
