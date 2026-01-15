@@ -45,7 +45,7 @@ class RunConfig(BaseModel):
 
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
-    deps: str = "/dep_examples"
+    dep_examples: str = "/dep_examples"
     fastapi_class_old: str = "/fastapi_class_old"
     fastapi_class_annotated: str = "/fastapi_class_annotated"
     depends_class_annotated: str = "/depends_class_annotated"
@@ -55,7 +55,8 @@ class ApiV1Prefix(BaseModel):
 class ApiPrefix(BaseModel):
     prefix: str = "/api"
     v1: ApiV1Prefix = ApiV1Prefix()
-    users: str = "/users"
+    user_post_prefix: str = "/users"
+    order_product_prefix: str = "/orders"
 
 
 class SqliteDsn(AnyUrl):

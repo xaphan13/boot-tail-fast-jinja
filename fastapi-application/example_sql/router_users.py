@@ -14,7 +14,7 @@ from db_core.db_async import CurrentSession
 
 
 r_users_sql = APIRouter(
-    prefix=settings.api.users,
+    prefix=settings.api.user_post_prefix,
     tags=["Sql example users"],
 )
 

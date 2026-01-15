@@ -7,6 +7,7 @@ from typing import Sequence
 
 from starlette import status
 
+from core.config import settings
 from .schema_order_product import (
     OrderCreateBody,
     OrderGetAllOrderbyQuery,
@@ -26,7 +27,7 @@ from config_log import logF
 
 
 r_order_one = APIRouter(
-    prefix="/order_one",
+    prefix=settings.api.order_product_prefix,
     tags=["Examples - Order - add get joinedload"],
 )
 

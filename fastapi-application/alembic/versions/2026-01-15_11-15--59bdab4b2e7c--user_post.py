@@ -29,9 +29,7 @@ def upgrade() -> None:
         sa.Column("surname", sa.String(length=20), nullable=True),
         sa.Column("password", sa.String(length=50), nullable=True),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_users")),
-        sa.UniqueConstraint(
-            "firstname", "surname", name=op.f("uq_users_firstname_surname")
-        ),
+        sa.UniqueConstraint("firstname", "surname", name=op.f("uq_users_firstname_surname")),
         sa.UniqueConstraint("nickname", name=op.f("uq_users_nickname")),
     )
     op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)

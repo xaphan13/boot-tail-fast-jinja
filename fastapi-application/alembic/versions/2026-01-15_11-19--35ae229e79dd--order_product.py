@@ -46,9 +46,7 @@ def upgrade() -> None:
     op.create_table(
         "order_product_association",
         sa.Column("count", sa.Integer(), server_default="1", nullable=True),
-        sa.Column(
-            "unit_price", sa.Integer(), server_default="0", nullable=True
-        ),
+        sa.Column("unit_price", sa.Integer(), server_default="0", nullable=True),
         sa.Column("order_id", sa.Integer(), nullable=False),
         sa.Column("product_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
@@ -64,12 +62,8 @@ def upgrade() -> None:
             name=op.f("fk_order_product_association_product_id_products"),
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint(
-            "id", name=op.f("pk_order_product_association")
-        ),
-        sa.UniqueConstraint(
-            "order_id", "product_id", name="idx_unique_order_product"
-        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_order_product_association")),
+        sa.UniqueConstraint("order_id", "product_id", name="idx_unique_order_product"),
     )
     op.create_index(
         op.f("ix_order_product_association_id"),

@@ -1,9 +1,7 @@
 __all__ = (
     "Base",
-
     "User",
     "Post",
-
     "Order",
     "Product",
     "OrderProductAssociation",
