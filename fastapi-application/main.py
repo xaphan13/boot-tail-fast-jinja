@@ -6,8 +6,8 @@ from core.config import settings
 from create_fastapi import create_app
 
 from api import router_api
-from example_sql.rout_users import router_users
-from ex_order_product.router_order_product import router_order_one
+from example_sql.router_users import r_users_sql
+from ex_order_product.router_order_product import r_order_one
 
 
 main_app = create_app(
@@ -19,12 +19,11 @@ main_app.include_router(
 )
 
 main_app.include_router(
-    router_users,
-    prefix=settings.api.users,
+    r_users_sql,
 )
 
 main_app.include_router(
-    router_order_one,
+    r_order_one,
 )
 
 

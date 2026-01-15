@@ -5,22 +5,27 @@ from fastapi import (
     Body,
 )
 
-from .schemas.schema_user import UserRead, UserCreate
+from .schemas.schema_user import UserResp, UserCreate
 
 from .crud import crud_users as users_crud
 
+from core.config import settings
 from db_core.db_async import CurrentSession
 
-router_users = APIRouter(tags=["Sql example users"])
+
+r_users_sql = APIRouter(
+    prefix=settings.api.users,
+    tags=["Sql example users"],
+)
 
 
-@router_users.get("/get_all_users", response_model=list[UserRead])
+@r_users_sql.get("/get_all_users", response_model=list[UserResp])
 async def get_users(session: CurrentSession):
     users = await users_crud.get_all_users(session=session)
     return users
 
 
-@router_users.post("/create_user", response_model=UserRead)
+@r_users_sql.post("/create_user", response_model=UserResp)
 async def create_user(
     session: CurrentSession,
     user_create: Annotated[

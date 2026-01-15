@@ -5,6 +5,8 @@ from sqlalchemy.orm import joinedload, InstrumentedAttribute
 from sqlalchemy.engine import Result
 from typing import Sequence
 
+from starlette import status
+
 from .schema_order_product import (
     OrderCreateBody,
     OrderGetAllOrderbyQuery,
@@ -23,13 +25,16 @@ from db_core.db_async import CurrentSession
 from config_log import logF
 
 
-router_order_one = APIRouter(prefix="/order_one", tags=["Examples - router_order_one"])
+r_order_one = APIRouter(
+    prefix="/order_one",
+    tags=["Examples - Order - add get joinedload"],
+)
 
 
-# =================================================================
-# +++++++++++++++++++++++++ added Order +++++++++++++++++++++++++ #
-# =================================================================
-@router_order_one.post("/add_order", response_model=OrderResp)
+# =============================================================== #
+#                           added Order                           #
+# =============================================================== #
+@r_order_one.post("/add_order", response_model=OrderResp)
 async def add_order(body: OrderCreateBody, db: CurrentSession):
     new_order: Order = Order(**body.model_dump())
     db.add(new_order)
@@ -40,7 +45,7 @@ async def add_order(body: OrderCreateBody, db: CurrentSession):
     return new_order
 
 
-@router_order_one.post("/insert_order", response_model=OrderCreateBody)
+@r_order_one.post("/insert_order", response_model=OrderCreateBody)
 async def insert_order(db: CurrentSession, body: OrderCreateBody):
     stmt: Insert[Order] = insert(Order).values(**body.model_dump())
 
@@ -50,10 +55,10 @@ async def insert_order(db: CurrentSession, body: OrderCreateBody):
     return body
 
 
-# =============================================================================
-# +++++++++++++++++++++++++ get record - condition  +++++++++++++++++++++++++ #
-# =============================================================================
-@router_order_one.get("/get_order_filter_by", response_model=OrderResp)
+# ==================================================================== #
+#                    get Orders - with condition                       #
+# ==================================================================== #
+@r_order_one.get("/get_order_filter_by", response_model=OrderResp)
 async def get_order_filter_by(db: CurrentSession, params: OrderGetQuery = Depends()):
     # stmt: Select[tuple[Order]] = select(Order).filter_by(id=22)
     filter_where = {key: value for key, value in params.model_dump().items() if value is not None}
@@ -64,12 +69,15 @@ async def get_order_filter_by(db: CurrentSession, params: OrderGetQuery = Depend
 
     order: Order = result.scalar()
 
-    if order is not None:
-        return order
-    raise HTTPException(status_code=422, detail=f"select.filter_by with {filter_where} not found")
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Order with {filter_where} not found",
+        )
+    return order
 
 
-@router_order_one.get("/get_order_where", response_model=OrderResp | list[OrderResp])
+@r_order_one.get("/get_order_where", response_model=OrderResp | list[OrderResp])
 async def get_order_where(db: CurrentSession, params: OrderGetQuery = Depends()):
     # stmt = select(Order).where(Order.id == 22)
     filter_where = [
@@ -84,16 +92,18 @@ async def get_order_where(db: CurrentSession, params: OrderGetQuery = Depends())
     # orders: Order = result.scalars().first()
     orders: Sequence[Order] = result.scalars().all()
 
-    if orders is None:
-        raise HTTPException(status_code=422, detail=f"select.where with {filter_where} not found")
+    if not orders:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Orders with {filter_where} not found",
+        )
     return orders
 
 
-# ================================================================================
-# +++++++++++++++++++++++++ get all - order_by +++++++++++++++++++++++++
-# ================================================================================
-# get all Order to the database **********************************************************
-@router_order_one.get("/get_all_orders", response_model=list[OrderResp])
+# ======================================================================= #
+#                      get all Orders - order_by                          #
+# ======================================================================= #
+@r_order_one.get("/get_all_orders", response_model=list[OrderResp])
 async def get_all_orders(db: CurrentSession, params: OrderGetAllOrderbyQuery):
     if params == "time":
         order_by_list_o: list[InstrumentedAttribute] = [Order.created_at, Order.id]
@@ -112,10 +122,10 @@ async def get_all_orders(db: CurrentSession, params: OrderGetAllOrderbyQuery):
     return result_scalars_all
 
 
-# ================================================================================
-# +++++++++++++++++++++++++ test +++++++++++++++++++++++++
-# ================================================================================
-@router_order_one.get("/get_all_join", response_model=list[OrderRespWithProducts])
+# ===================================================================== #
+#                get all Orders with join Order.products                #
+# ===================================================================== #
+@r_order_one.get("/get_all_join", response_model=list[OrderRespWithProducts])
 async def get_all_join(db: CurrentSession, variant: int = 1):
     stmt: Select[tuple[Order]] = (
         select(Order)

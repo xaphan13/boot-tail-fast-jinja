@@ -6,10 +6,9 @@ from datetime import datetime
 from enum import Enum
 
 
-# ***************************************************************************************
-# QUERY : get-create to dataBase =================================================
-# ---------------------------------------------------------------------------------------
-# schemas is used when : get(GET), create(POST), update(PUT) a Order(Base)
+# ==================================================================== #
+#                   BaseModel - Order - pydantic                       #
+# ==================================================================== #
 class OrderGetQuery(BaseModel):
     id: Optional[int] = None
     created_at: Optional[datetime] = None
@@ -34,10 +33,9 @@ class OrderGetOrderbyList(BaseModel):
     order_by_list: List[OrderGetAllOrderbyQuery] = ["id"]
 
 
-# ---------------------------------------------------------------------------------------
-
-
-# schemas are used when : get(GET), create(POST), update(PUT) a Product(Base)
+# ======================================================================= #
+#                     BaseModel - Product - pydantic                      #
+# ======================================================================= #
 class ProductGetQuery(BaseModel):
     id: Optional[int] = 0
     name: Optional[str] = None
@@ -57,9 +55,6 @@ class ProductUpdateBody(BaseModel):
     price: int | str = ""
 
 
-# ---------------------------------------------------------------------------------------
-
-
 # schemas are used when : get(GET) a OrderProductAssociation(Base)
 class AssociationGetQuery(BaseModel):
     id: Optional[int] = 0
@@ -69,18 +64,12 @@ class AssociationGetQuery(BaseModel):
     product_id: Optional[int] = 0
 
 
-# ---------------------------------------------------------------------------------------
-
-
-# ***************************************************************************************
-# RESPONSE : response_model from dataBase =================================================
-# ---------------------------------------------------------------------------------------
+# =========================================================== #
+#             RESPONSE : response_model pydantic              #
+# =========================================================== #
 class OrderProductBase(BaseModel):
     class Config:
         from_attributes = True
-
-
-# ---------------------------------------------------------------------------------------
 
 
 # schema is used as a response_model for Order(Base)
@@ -107,11 +96,9 @@ class AssociationResp(BaseModel):
     product_id: int
 
 
-# ---------------------------------------------------------------------------------------
-
-
-# ---------------------------------------------------------------------------------------
-# schema Product Response = with -> relationship('Order', secondary='order_product_association')
+# ==================================================================== #
+#     relationship('Order', secondary='order_product_association')     #
+# ==================================================================== #
 class ProductRespWithOrders(ProductResp):
     orders: List[OrderResp]
 
@@ -125,11 +112,9 @@ class ProductRespWithOrdersAssoc(ProductResp):
     orders_details: List[AssociationResp]
 
 
-# ---------------------------------------------------------------------------------------
-
-
-# ---------------------------------------------------------------------------------------
-# schema Order Response = with -> relationship('Product', secondary='order_product_association')
+# ====================================================================== #
+#     relationship('Product', secondary='order_product_association')     #
+# ====================================================================== #
 class OrderRespWithProducts(OrderResp):
     products: List[ProductResp]
 
@@ -145,14 +130,3 @@ class OrderRespWithProductsAssoc(OrderResp):
 
 class OrderRespWithProductsDetails(OrderResp):
     products: List[ProductRespWithsAssoc]
-
-
-# ---------------------------------------------------------------------------------------
-
-
-# ---------------------------------------------------------------------------------------
-class TypeResponse(int, Enum):
-    a = 1
-    b = 2
-    c = 3
-    d = 4

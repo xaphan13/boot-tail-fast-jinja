@@ -4,7 +4,7 @@ from typing import Sequence
 
 from example_sql.schemas.schema_user import UserCreate
 
-from example_sql.models.model_user import User
+from example_sql.models.model_user_post import User
 
 
 async def get_all_users(

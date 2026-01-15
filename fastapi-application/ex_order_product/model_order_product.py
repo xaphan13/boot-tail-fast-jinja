@@ -44,9 +44,6 @@ class Order(Base):
         overlaps="products_details",
     )
 
-    def __str__(self):
-        return f"{self.__class__.__name__}(id={self.id}, promocode={self.promocode}, created_at={self.created_at})"
-
 
 class Product(Base):
     id: Mapped[int_primary_key]
@@ -71,16 +68,9 @@ class Product(Base):
         overlaps="orders_details",
     )
 
-    def __str__(self):
-        return (
-            f"{self.__class__.__name__}(id={self.id}, name={self.name}, "
-            f"description={self.description}, price={self.price})"
-        )
-
 
 class OrderProductAssociation(Base):
     __tablename__ = "order_product_association"
-    __table_args__ = (UniqueConstraint("order_id", "product_id", name="idx_unique_order_product"),)
 
     id: Mapped[int_primary_key]
 
@@ -112,3 +102,11 @@ class OrderProductAssociation(Base):
         back_populates="orders_details",
         overlaps="orders, products",
     )
+    # fmt: off
+    __table_args__ = (
+        UniqueConstraint(
+            order_id, product_id,
+            name="idx_unique_order_product",
+        ),
+    )
+    # fmt: on
