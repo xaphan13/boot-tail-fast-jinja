@@ -1,5 +1,6 @@
 # VSCode
 .vscode/
+.kilo
 
 # JetBrains IDE
 .idea/
