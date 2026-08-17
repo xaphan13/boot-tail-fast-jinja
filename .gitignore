@@ -5,6 +5,7 @@
 # JetBrains IDE
 .idea/
 idea/
+.gigaide/
 
 # Python
 __pycache__/
