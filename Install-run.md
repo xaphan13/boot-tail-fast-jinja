@@ -1,4 +1,4 @@
-# FastAPI Example - one-fastApi
+# FastAPI Example - my-fastapi-one
 
 ************************************ run with uvicorn
 ```bash
