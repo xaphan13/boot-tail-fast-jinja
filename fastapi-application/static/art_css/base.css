@@ -360,6 +360,11 @@ main {
     --art-code-color: #d8b4fe;
     --art-focus-ring: rgba(167, 139, 250, 0.35);
     --art-h2-rule: #7c5cd6;
+
+    /* Вспомогательные: мягкий тинт поверх фона, цвет свечения, фирменный градиент */
+    --art-soft: rgba(167, 139, 250, 0.12);
+    --art-glow: rgba(167, 139, 250, 0.35);
+    --art-grad: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
 }
 
 /* === Тема «Северное сияние» (aurora) =======================================
@@ -396,6 +401,11 @@ main {
     --art-code-color: #7dd3fc;
     --art-focus-ring: rgba(52, 211, 153, 0.35);
     --art-h2-rule: #0f9b6c;
+
+    /* Вспомогательные: мягкий тинт поверх фона, цвет свечения, фирменный градиент */
+    --art-soft: rgba(52, 211, 153, 0.12);
+    --art-glow: rgba(52, 211, 153, 0.35);
+    --art-grad: linear-gradient(135deg, #10b981 0%, #22d3ee 100%);
 }
 
 /* === Современный дизайн — ТОЛЬКО в новых темах =============================
@@ -424,11 +434,30 @@ main {
     color: transparent;
 }
 
+/* Пункты верхнего меню: парящие пилюли — тинт фона, подъём и свечение на hover */
+[data-bs-theme="midnight"] .backcolor-header .navbar-nav .nav-link,
+[data-bs-theme="aurora"] .backcolor-header .navbar-nav .nav-link {
+    border-radius: 0.6rem;
+    padding: 0.35rem 0.75rem;
+    transition: background-color 0.18s ease, color 0.18s ease,
+        transform 0.18s ease, box-shadow 0.18s ease;
+}
+
 [data-bs-theme="midnight"] .backcolor-header .navbar-nav .nav-link:hover,
 [data-bs-theme="midnight"] .backcolor-header .navbar-nav .nav-link:focus-visible,
 [data-bs-theme="aurora"] .backcolor-header .navbar-nav .nav-link:hover,
 [data-bs-theme="aurora"] .backcolor-header .navbar-nav .nav-link:focus-visible {
     color: var(--art-link-hover);
+    background-color: var(--art-soft);
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px var(--art-glow);
+}
+
+/* Селекторы тем в шапке: подсвеченный фокус */
+[data-bs-theme="midnight"] .backcolor-header .form-select:focus-visible,
+[data-bs-theme="aurora"] .backcolor-header .form-select:focus-visible {
+    box-shadow: 0 0 0 0.2rem var(--art-focus-ring);
 }
 
 /* Скругления и мягкие тени карточек/секций */
@@ -494,10 +523,18 @@ main {
 }
 
 /* Акцентные ссылки сайдбара: перекрываем фиксированный оранжевый
-   внутри новых тем (специфичность выше базового правила с !important). */
+   внутри новых тем (специфичность выше базового правила с !important)
+   и превращаем пункты в парящие кнопки-пилюли. */
 [data-bs-theme="midnight"] .sidebar .nav-link,
 [data-bs-theme="aurora"] .sidebar .nav-link {
     color: var(--art-link) !important;
+    background-color: var(--art-soft);
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    margin-bottom: 0.4rem;
+    transition: transform 0.18s ease, box-shadow 0.18s ease,
+        background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 
 [data-bs-theme="midnight"] .sidebar .nav-link:hover,
@@ -505,6 +542,10 @@ main {
 [data-bs-theme="aurora"] .sidebar .nav-link:hover,
 [data-bs-theme="aurora"] .sidebar .nav-link:focus-visible {
     color: var(--art-link-hover) !important;
+    border-color: var(--art-link);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--art-glow);
+    text-decoration: none !important;
 }
 
 [data-bs-theme="midnight"] .sidebar .text-bg-secondary,
@@ -513,4 +554,135 @@ main {
 [data-bs-theme="aurora"] .sidebar .text-bg-info {
     color: var(--bs-body-bg) !important;
     background-color: var(--art-link) !important;
+}
+
+/* === Страница управления и формы — современный вид (только новые темы) ===== */
+
+/* Акцентная градиентная линия под заголовками секций */
+[data-bs-theme="midnight"] .content-section > h2,
+[data-bs-theme="aurora"] .content-section > h2 {
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+[data-bs-theme="midnight"] .content-section > h2::after,
+[data-bs-theme="aurora"] .content-section > h2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 4.5rem;
+    height: 3px;
+    border-radius: 999px;
+    background-image: var(--art-grad);
+}
+
+/* Таблица реестра: скруглённый контейнер с тенью, тинт шапки, подсветка строк */
+[data-bs-theme="midnight"] .table-responsive,
+[data-bs-theme="aurora"] .table-responsive {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+[data-bs-theme="midnight"] .table thead th,
+[data-bs-theme="aurora"] .table thead th {
+    background-color: var(--art-soft);
+    color: var(--art-heading);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+[data-bs-theme="midnight"] .table tbody tr,
+[data-bs-theme="aurora"] .table tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
+
+[data-bs-theme="midnight"] .table tbody tr:hover > td,
+[data-bs-theme="aurora"] .table tbody tr:hover > td {
+    background-color: var(--art-soft);
+}
+
+/* Списки (нераспределённые файлы, записи без файла): отдельные парящие карточки */
+[data-bs-theme="midnight"] .list-group,
+[data-bs-theme="aurora"] .list-group {
+    --bs-list-group-bg: transparent;
+    --bs-list-group-border-color: var(--art-border);
+    --bs-list-group-border-radius: 0.75rem;
+    --bs-list-group-action-color: var(--art-body-color);
+    --bs-list-group-action-hover-color: var(--art-link-hover);
+    --bs-list-group-action-hover-bg: var(--art-soft);
+    --bs-list-group-action-active-bg: var(--art-soft);
+}
+
+[data-bs-theme="midnight"] .list-group-item,
+[data-bs-theme="aurora"] .list-group-item {
+    border-radius: 0.75rem !important;
+    margin-bottom: 0.5rem;
+    transition: transform 0.18s ease, box-shadow 0.18s ease,
+        border-color 0.18s ease, background-color 0.18s ease;
+}
+
+/* Возвращаем верхнюю границу: BS склеивает соседние пункты, а нам нужны
+   отдельные карточки с полным контуром */
+[data-bs-theme="midnight"] .list-group-item + .list-group-item,
+[data-bs-theme="aurora"] .list-group-item + .list-group-item {
+    border-top-width: 1px;
+}
+
+[data-bs-theme="midnight"] .list-group-item:hover,
+[data-bs-theme="aurora"] .list-group-item:hover {
+    transform: translateY(-1px);
+    border-color: var(--art-h2-border);
+    background-color: var(--art-soft);
+    box-shadow: 0 6px 16px var(--art-glow);
+}
+
+/* Бейджи статусов: пилюли с мягкой тенью */
+[data-bs-theme="midnight"] .badge,
+[data-bs-theme="aurora"] .badge {
+    border-radius: 50rem;
+    padding: 0.45em 0.75em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Кнопки: градиентная заливка при наведении, подъём и свечение */
+[data-bs-theme="midnight"] .btn-outline-primary:hover,
+[data-bs-theme="midnight"] .btn-outline-primary:focus-visible,
+[data-bs-theme="midnight"] .btn-outline-success:hover,
+[data-bs-theme="midnight"] .btn-outline-success:focus-visible,
+[data-bs-theme="aurora"] .btn-outline-primary:hover,
+[data-bs-theme="aurora"] .btn-outline-primary:focus-visible,
+[data-bs-theme="aurora"] .btn-outline-success:hover,
+[data-bs-theme="aurora"] .btn-outline-success:focus-visible {
+    color: var(--bs-body-bg);
+    border-color: transparent;
+    background-image: var(--art-grad);
+    box-shadow: 0 6px 16px var(--art-glow);
+    transform: translateY(-1px);
+}
+
+[data-bs-theme="midnight"] .btn-primary,
+[data-bs-theme="aurora"] .btn-primary {
+    border-color: transparent;
+    background-image: var(--art-grad);
+}
+
+[data-bs-theme="midnight"] .btn-primary:hover,
+[data-bs-theme="midnight"] .btn-primary:focus-visible,
+[data-bs-theme="aurora"] .btn-primary:hover,
+[data-bs-theme="aurora"] .btn-primary:focus-visible {
+    border-color: transparent;
+    box-shadow: 0 6px 16px var(--art-glow);
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+/* Алерты (например, ошибка чтения articles.yaml): скруглённые */
+[data-bs-theme="midnight"] .alert,
+[data-bs-theme="aurora"] .alert {
+    border-radius: 0.75rem;
+    border-width: 1px;
 }
