@@ -17,7 +17,11 @@ class ArticleEx:
         return self.article
 
 
-art_list = [ArticleEx("user1", "article1"), ArticleEx("user2", "article2"), ArticleEx("user3", "article3")]
+art_list = [
+    ArticleEx("user1", "article1"),
+    ArticleEx("user2", "article2"),
+    ArticleEx("user3", "article3"),
+]
 
 
 class ArticleLang22:

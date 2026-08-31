@@ -34,9 +34,7 @@ art_main = Blueprint("art_main", __name__)
 @art_main.route("/art_home")
 def art_home():
     title_list = [
-        art.model_dump(exclude={"content"})
-        for art in get_articles()
-        if _is_complete(art)
+        art.model_dump(exclude={"content"}) for art in get_articles() if _is_complete(art)
     ]
     logFC.info(f"new_art : '/art_home' = {title_list}")
 
@@ -62,7 +60,9 @@ def art_author(author, art_id):
     content = render_article(art.file_name, content_dir)
     art_for_template = art.model_copy(update={"content": content})
 
-    return render_template("new_art/art_author.html", lang=art_for_template.lang, art=art_for_template)
+    return render_template(
+        "new_art/art_author.html", lang=art_for_template.lang, art=art_for_template
+    )
 
 
 # ----------------------------------------------------------------------------------
@@ -161,9 +161,7 @@ def art_manage_meta():
 
     if file_name in registry_by_file:
         old_art = registry_by_file[file_name]
-        updated_art = old_art.model_copy(
-            update={"author": author, "lang": lang, "title": title}
-        )
+        updated_art = old_art.model_copy(update={"author": author, "lang": lang, "title": title})
         articles = [updated_art if art.file_name == file_name else art for art in articles]
         action_word = "Обновлена"
     else:

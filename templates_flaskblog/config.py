@@ -19,7 +19,9 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URI")
     if not SQLALCHEMY_DATABASE_URI:
-        SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        SQLALCHEMY_DATABASE_URI = (
+            f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        )
 
     # logger settings
     LOG_DIR = os.environ.get("LOG_DIR")
