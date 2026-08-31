@@ -31,6 +31,7 @@ router_articles = APIRouter(
 # +++++++++++++++++++++++++++++++ art_home +++++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_articles.get("/art_home", name="art_main.art_home")
+@router_articles.post("/art_home", name="art_main.art_home")
 async def art_home(request: Request):
     title_list = [
         art.model_dump(exclude={"content"})
