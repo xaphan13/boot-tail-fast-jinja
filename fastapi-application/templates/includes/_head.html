@@ -3,7 +3,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="Сайт статей о программировании: разборы кода, обзоры и технические заметки на русском.">
 
-  {# Крошечный инлайн-скрипт восстановления темы: ставит data-bs-theme на <html> до
+  {# Крошечный инлайн-скрипт восстановления темы: ставит data-theme на <html> до
      загрузки стилей, чтобы избежать вспышки неверной темы. Принимает все 4 значения
      из VALID в scripts.js (dark, light, midnight, aurora); невалидное значение
      игнорируется — останется дефолтный dark. Это единственный допустимый
@@ -13,17 +13,44 @@
       try {
         var t = localStorage.getItem('theme');
         if (t === 'light' || t === 'dark' || t === 'midnight' || t === 'aurora') {
-          document.documentElement.setAttribute('data-bs-theme', t);
+          document.documentElement.setAttribute('data-theme', t);
         }
       } catch (e) {}
     })();
   </script>
 
-  <!-- Bootstrap 5.3.8 CSS (jsdelivr + SRI) -->
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-        crossorigin="anonymous">
+  <!-- Tailwind CSS Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  {# Конфигурация Tailwind: семантические цвета замаплены на CSS-переменные
+     --art-* из static/art_css/base.css. Темы (dark/light/midnight/aurora)
+     различаются только значениями переменных на [data-theme=...] — классы
+     в шаблонах одни и те же для всех тем. #}
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            page: 'var(--art-page)',
+            surface: 'var(--art-surface)',
+            'surface-2': 'var(--art-surface-2)',
+            ink: 'var(--art-ink)',
+            muted: 'var(--art-muted)',
+            line: 'var(--art-line)',
+            accent: 'var(--art-accent)',
+            'accent-strong': 'var(--art-accent-strong)',
+            heading: 'var(--art-heading)',
+            codebg: 'var(--art-code-bg)',
+            codeink: 'var(--art-code-ink)',
+            ok: 'var(--art-ok)',
+            warn: 'var(--art-warn)',
+            danger: 'var(--art-danger)',
+            ring: 'var(--art-ring)'
+          }
+        }
+      }
+    };
+  </script>
 
   {# Набор тёмных тем подсветки highlight.js подключён в <head> сразу; по умолчанию
      активна vs2015, остальные помечены disabled. scripts.js синхронизирует активную

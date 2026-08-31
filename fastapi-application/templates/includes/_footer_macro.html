@@ -1,19 +1,20 @@
 {% macro footer_new(current_user) %}
-  <div class="container">
-    <ul class="nav justify-content-center flex-wrap">
-      <li class="nav-item"><a href="{{ url_for('main.home') }}" class="nav-link px-3 text-body-secondary">Главная</a></li>
-      <li class="nav-item"><a href="{{ url_for('art_main.art_home') }}" class="nav-link px-3 text-body-secondary">Статьи</a></li>
-      <li class="nav-item"><a href="{{ url_for('main.about') }}" class="nav-link px-3 text-body-secondary">О сайте</a></li>
-      {% if current_user.is_authenticated %}
-        <li class="nav-item"><a href="{{ url_for('users.account') }}" class="nav-link px-3 text-body-secondary">Аккаунт</a></li>
-        <li class="nav-item"><a href="{{ url_for('users.logout') }}" class="nav-link px-3 text-body-secondary">Выход</a></li>
-      {% else %}
-        <li class="nav-item"><a href="{{ url_for('users.login') }}" class="nav-link px-3 text-body-secondary">Вход</a></li>
-        <li class="nav-item"><a href="{{ url_for('users.register') }}" class="nav-link px-3 text-body-secondary">Регистрация</a></li>
-      {% endif %}
-    </ul>
+  <div class="bg-surface border-t border-line">
+    <div class="w-full px-4 md:px-6 py-6">
+      <div class="flex flex-wrap justify-center gap-1">
+        <a href="{{ url_for('main.home') }}" class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface-2 transition">Главная</a>
+        <a href="{{ url_for('art_main.art_home') }}" class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface-2 transition">Статьи</a>
+        <a href="{{ url_for('main.about') }}" class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface-2 transition">О сайте</a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('users.account') }}" class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface-2 transition">Аккаунт</a>
+          <a href="{{ url_for('users.logout') }}" class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface-2 transition">Выход</a>
+        {% else %}
+          <a href="{{ url_for('users.login') }}" class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface-2 transition">Вход</a>
+          <a href="{{ url_for('users.register') }}" class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-accent hover:bg-surface-2 transition">Регистрация</a>
+        {% endif %}
+      </div>
 
-    <hr class="my-3">
-    <p class="text-center text-body-secondary mb-0">© 2024 Xaphan Company, Inc</p>
+      <p class="text-center text-sm text-muted mt-4 mb-0">© 2024 Xaphan Company, Inc</p>
+    </div>
   </div>
 {% endmacro %}

@@ -1,9 +1,19 @@
-
-  <div class="padding-content sidebar">
-    <ul class="nav flex-column">
-      <li class="nav-item"><a href="#" class="nav-link">Раздел 1</a></li>
-      <li class="nav-item"><a href="#" class="nav-link">Раздел 2</a></li>
-      <li class="nav-item"><a href="#" class="nav-link">Раздел 3</a></li>
-      <!-- Добавьте другие разделы по необходимости -->
-    </ul>
-  </div>
+{# Боковая навигация: узкая колонка (md:w-20 в layout.html), липкая при
+   прокрутке. Пункты — карточки-кнопки .side-link (стили в base.css),
+   на всю ширину колонки: на hover заливаются акцентом темы, меняют
+   цвет рамки и текста. Названия — примеры, разделы добавятся позже. #}
+<nav class="pt-1 w-full">
+  <p class="mb-2 text-center text-[0.65rem] font-semibold uppercase tracking-wider text-muted">Разделы</p>
+  <ul class="flex flex-col items-stretch gap-2 w-full">
+    <li><a href="#" class="side-link">Python</a></li>
+    <li><a href="#" class="side-link">FastAPI</a></li>
+    <li><a href="#" class="side-link">SQLAlchemy</a></li>
+    <li><a href="#" class="side-link">PostgreSQL</a></li>
+    <li><a href="#" class="side-link">Docker</a></li>
+    <li><a href="#" class="side-link">Git</a></li>
+    <li><a href="#" class="side-link">Linux</a></li>
+    <li><a href="#" class="side-link">JavaScript</a></li>
+    <li><a href="#" class="side-link">Алгоритмы</a></li>
+    <li><a href="#" class="side-link">DevOps</a></li>
+  </ul>
+</nav>

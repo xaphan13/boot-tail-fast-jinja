@@ -18,11 +18,9 @@
     ('shades-of-purple', 'Shades of Purple'),
     ('ir-black', 'Ir Black'),
 ] %}
-<li class="nav-item hljs-theme-select-item d-flex align-items-center">
-  <select class="form-select form-select-sm hljs-theme-select" id="hljs-theme-select"
-          aria-label="Тема подсветки кода">
-    {% for theme_id, theme_label in hljs_dark_themes %}
-      <option value="{{ theme_id }}">{{ theme_label }}</option>
-    {% endfor %}
-  </select>
-</li>
+<select class="hljs-theme-select bg-surface-2 border border-line text-ink text-sm rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-ring"
+        id="hljs-theme-select" aria-label="Тема подсветки кода">
+  {% for theme_id, theme_label in hljs_dark_themes %}
+    <option value="{{ theme_id }}">{{ theme_label }}</option>
+  {% endfor %}
+</select>

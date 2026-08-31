@@ -3,28 +3,31 @@
 
 {% block content %}
 
-  <div class="content-section">
-    <form method="POST" action="">
+  <div class="max-w-md mx-auto">
+    <div class="bg-surface border border-line rounded-2xl shadow-lg shadow-black/10 p-8">
 
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <form method="POST" action="">
 
-      <fieldset>
-        <h1 class="mb-4">Вход</h1>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <h1 class="text-2xl font-bold text-heading mb-6">Вход</h1>
 
         {{ field_with_errors(form.email) }}
         {{ field_with_errors(form.password) }}
 
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" name="remember" id="remember">
-          <label class="form-check-label" for="remember">Remember Me</label>
+        <div class="flex items-center gap-2 mb-6">
+          <input id="remember" name="remember" type="checkbox"
+                 class="h-4 w-4 rounded border-line accent-[color:var(--art-accent)]">
+          <label for="remember" class="text-sm text-muted">Remember Me</label>
         </div>
-      </fieldset>
 
-      <div class="mb-3">
-        <button type="submit" class="btn btn-outline-info">Login</button>
-      </div>
+        <button type="submit"
+                class="btn-grad w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition">
+          Login
+        </button>
 
-    </form>
+      </form>
+    </div>
   </div>
 
 {% endblock content %}

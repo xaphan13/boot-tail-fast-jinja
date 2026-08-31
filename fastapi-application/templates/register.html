@@ -3,25 +3,27 @@
 
 {% block content %}
 
-  <div class="content-section">
-    <form method="POST" action="">
+  <div class="max-w-md mx-auto">
+    <div class="bg-surface border border-line rounded-2xl shadow-lg shadow-black/10 p-8">
 
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <form method="POST" action="">
 
-      <fieldset>
-        <h1 class="mb-4">Регистрация</h1>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <h1 class="text-2xl font-bold text-heading mb-6">Регистрация</h1>
 
         {{ field_with_errors(form.username) }}
         {{ field_with_errors(form.email) }}
         {{ field_with_errors(form.password) }}
         {{ field_with_errors(form.confirm_password) }}
-      </fieldset>
 
-      <div class="mb-3">
-        <button type="submit" class="btn btn-outline-info">Sign Up</button>
-      </div>
+        <button type="submit"
+                class="btn-grad w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition">
+          Sign Up
+        </button>
 
-    </form>
+      </form>
+    </div>
   </div>
 
 {% endblock content %}

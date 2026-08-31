@@ -1,30 +1,28 @@
 <!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
+<html lang="ru" data-theme="dark">
   <head>
     {% include 'includes/_head.html' %}
   </head>
 
-  <body>
-    <header class="site-header">
+  <body class="bg-page text-ink min-h-screen flex flex-col antialiased">
+    <header class="fixed top-0 inset-x-0 z-50">
       {% include 'includes/_header.html' %}
     </header>
 
-    <main role="main">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="margin-right-sidebar col-md-2">
-            {% include 'includes/_sidebar.html' %}
-          </div>
-          <div class="padding-content col-md-10">
-            {% include 'includes/_flash_msg.html' %}
+    <main class="flex-1 w-full px-4 md:px-6 pt-24 pb-10">
+      <div class="flex flex-col md:flex-row gap-6">
+        <aside class="md:w-[clamp(100px,10vw,150px)] shrink-0 md:sticky md:top-24 self-start">
+          {% include 'includes/_sidebar.html' %}
+        </aside>
+        <div class="flex-1 min-w-0">
+          {% include 'includes/_flash_msg.html' %}
 
-            {% block content %}{% endblock %}
-          </div>
+          {% block content %}{% endblock %}
         </div>
       </div>
     </main>
 
-    <footer class="custom_footer mt-4 align-items-center">
+    <footer class="mt-auto">
       {% from 'includes/_footer_macro.html' import footer_new with context %}
       {{ footer_new(current_user) }}
     </footer>

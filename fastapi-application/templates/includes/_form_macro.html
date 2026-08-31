@@ -1,5 +1,5 @@
 {# Макрос для рендера полей формы (чистый HTML + Pydantic-валидация на сервере).
-   Заменяет 11 повторённых блоков «label + input + invalid-feedback» в
+   Заменяет повторённые блоки «label + input + список ошибок» в
    register.html / login.html / account.html.
 
    Контракт данных (form — dict; каждый элемент — dict от backend):
@@ -12,27 +12,26 @@
 
    Использование:
      {% from 'includes/_form_macro.html' import field_with_errors %}
-     {{ field_with_errors(form.email) }}
-     {{ field_with_errors(form.email, size='form-control-sm') }}   #}
+     {{ field_with_errors(form.email) }}   #}
 
-{% macro field_with_errors(field, size='form-control-lg') %}
-  <div class="mb-3">
-    <label for="{{ field.id }}" class="form-label">{{ field.label }}</label>
+{% macro field_with_errors(field) %}
+  <div class="mb-4">
+    <label for="{{ field.id }}" class="block text-sm font-medium text-muted mb-1.5">{{ field.label }}</label>
 
     {% if field.errors %}
       <input type="{{ field.type }}"
-             class="form-control {{ size }} is-invalid"
+             class="w-full rounded-xl border border-danger bg-surface-2 px-4 py-2.5 text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-danger"
              id="{{ field.id }}"
              name="{{ field.name }}"
              value="{{ field.value or '' }}">
-      <div class="invalid-feedback">
+      <ul class="mt-1.5 text-sm text-danger space-y-0.5">
         {% for error in field.errors %}
-          <span>{{ error }}</span>
+          <li>{{ error }}</li>
         {% endfor %}
-      </div>
+      </ul>
     {% else %}
       <input type="{{ field.type }}"
-             class="form-control {{ size }}"
+             class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-ring"
              id="{{ field.id }}"
              name="{{ field.name }}"
              value="{{ field.value or '' }}">
@@ -41,15 +40,20 @@
 {% endmacro %}
 
 {# Макрос для рендера поля загрузки файла (form.picture в account.html).
-   У file-input нет удобного invalid-feedback, поэтому отдельный макрос. #}
+   У file-input нет удобного механизма ошибок, поэтому отдельный макрос. #}
 {% macro file_field(field) %}
-  <div class="mb-3">
-    <label for="{{ field.id }}" class="form-label">{{ field.label }}</label>
-    <input type="file" class="form-control" id="{{ field.id }}" name="{{ field.name }}">
+  <div class="mb-4">
+    <label for="{{ field.id }}" class="block text-sm font-medium text-muted mb-1.5">{{ field.label }}</label>
+    <input type="file" id="{{ field.id }}" name="{{ field.name }}"
+           class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm text-muted cursor-pointer
+                  file:mr-3 file:rounded-lg file:border-0 file:bg-line file:px-3 file:py-1.5
+                  file:text-sm file:font-medium file:text-ink hover:file:opacity-80 transition">
     {% if field.errors %}
-      {% for error in field.errors %}
-        <span class="text-danger">{{ error }}</span><br>
-      {% endfor %}
+      <ul class="mt-1.5 text-sm text-danger space-y-0.5">
+        {% for error in field.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
     {% endif %}
   </div>
 {% endmacro %}

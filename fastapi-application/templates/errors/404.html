@@ -1,7 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
-    <div class="content-section">
-        <h1>Страница не найдена (404)</h1>
-        <p>Такой страницы нет. Попробуйте перейти по другому адресу.</p>
+  <div class="max-w-lg mx-auto text-center">
+    <div class="bg-surface border border-line rounded-2xl shadow-lg shadow-black/10 p-10">
+      <p class="grad-text text-6xl font-black mb-4">404</p>
+      <h1 class="text-xl font-semibold text-heading mb-2">Страница не найдена</h1>
+      <p class="text-muted mb-6">Такой страницы нет. Попробуйте перейти по другому адресу.</p>
+      <a href="{{ url_for('main.home') }}"
+         class="btn-grad inline-block px-6 py-2.5 rounded-xl text-sm font-semibold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition">На главную</a>
     </div>
+  </div>
 {% endblock content %}

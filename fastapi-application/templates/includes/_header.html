@@ -1,42 +1,43 @@
-<nav class="navbar navbar-expand-md backcolor-header fixed-top">
-  <div class="container">
+<nav class="site-header-grad shadow-lg">
+  <div class="w-full px-4 md:px-6">
 
-    {% if lang %}
-      <a class="navbar-brand me-3" href="{{ url_for('art_main.art_home') }}">Сайт о программировании на {{ lang }}</a>
-    {% else %}
-      <a class="navbar-brand me-3" href="{{ url_for('art_main.art_home') }}">Сайт о программировании</a>
-    {% endif %}
-
-    {# Кнопка-тогглер мобильного меню: data-bs-toggle/data-bs-target — нативный API BS5 #}
-    <button class="navbar-toggler" type="button"
-            data-bs-toggle="collapse" data-bs-target="#navbarToggle"
-            aria-controls="navbarToggle" aria-expanded="false" aria-label="Переключить навигацию">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarToggle">
-      {# Левая часть — пока пустая, служит зазором между брендом и правым меню #}
-      <ul class="navbar-nav me-auto"></ul>
-
-      {# Правая часть навигации #}
-      <ul class="navbar-nav">
-        {% if current_user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('art_main.art_home') }}">Статьи</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('art_main.art_manage') }}">Управление</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('users.account') }}">Аккаунт</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('users.logout') }}">Выход</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">О сайте</a></li>
-          {% include "includes/_theme_select.html" %}
-          {% include "includes/_hljs_theme_select.html" %}
+    {# На md+ бренд и меню — одна строка (justify-between, items-center):
+       название и пункты выровнены по одной вертикальной оси. На мобильных
+       бренд — отдельная строка h-16, меню раскрывается гамбургером ниже. #}
+    <div class="md:flex md:items-center md:justify-between md:gap-4">
+      <div class="h-16 flex items-center justify-between md:h-auto md:flex-none">
+        {% if lang %}
+          <a class="brand-text text-lg font-bold tracking-tight" href="{{ url_for('art_main.art_home') }}">Сайт о программировании на {{ lang }}</a>
         {% else %}
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('art_main.art_home') }}">Статьи</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('users.login') }}">Вход</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('users.register') }}">Регистрация</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">О сайте</a></li>
-          {% include "includes/_theme_select.html" %}
-          {% include "includes/_hljs_theme_select.html" %}
+          <a class="brand-text text-lg font-bold tracking-tight" href="{{ url_for('art_main.art_home') }}">Сайт о программировании</a>
         {% endif %}
-      </ul>
+
+        {# Гамбургер мобильного меню: показ/скрытие #nav-menu ведёт scripts.js
+           (toggle класса hidden, aria-expanded) #}
+        <button id="nav-toggle" type="button"
+                class="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-lg border border-white/15 text-white hover:bg-white/10 transition"
+                aria-controls="nav-menu" aria-expanded="false" aria-label="Переключить навигацию">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="nav-menu" class="hidden md:flex flex-col md:flex-row md:items-center gap-1 pb-3 md:pb-0">
+      {% if current_user.is_authenticated %}
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('art_main.art_home') }}">Статьи</a>
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('art_main.art_manage') }}">Управление</a>
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('users.account') }}">Аккаунт</a>
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('users.logout') }}">Выход</a>
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('main.about') }}">О сайте</a>
+      {% else %}
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('art_main.art_home') }}">Статьи</a>
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('users.login') }}">Вход</a>
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('users.register') }}">Регистрация</a>
+        <a class="px-3 py-1.5 rounded-lg text-sm font-medium text-white/85 hover:text-white hover:bg-white/10 transition" href="{{ url_for('main.about') }}">О сайте</a>
+      {% endif %}
+      {% include "includes/_theme_select.html" %}
+      {% include "includes/_hljs_theme_select.html" %}
     </div>
   </div>
 </nav>

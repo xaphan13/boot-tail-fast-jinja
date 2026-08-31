@@ -93,13 +93,27 @@
   }
 
   function applyTheme(t) {
-    document.documentElement.setAttribute('data-bs-theme', t);
+    document.documentElement.setAttribute('data-theme', t);
     syncHighlightTheme();
+  }
+
+  // === Мобильное меню ========================================================
+  // Гамбургер #nav-toggle показывает/скрывает меню #nav-menu (класс hidden).
+  // Раньше это делал collapse из Bootstrap, теперь — четыре строки здесь.
+
+  function initNavToggle() {
+    var btn = document.getElementById('nav-toggle');
+    var menu = document.getElementById('nav-menu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+      var hidden = menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+    });
   }
 
   // === Подписки на события ===================================================
 
-  // Селектор темы сайта. Применяется мгновенно через data-bs-theme на <html>,
+  // Селектор темы сайта. Применяется мгновенно через data-theme на <html>,
   // без перезагрузки страницы; выбор сохраняется в localStorage['theme'].
   function onThemeSelectChange(e) {
     var value = e.target.value;
@@ -121,7 +135,7 @@
     }
     // Текущее значение берём с <html>: инлайн-скрипт в <head> уже восстановил
     // тему из localStorage до загрузки стилей.
-    var current = document.documentElement.getAttribute('data-bs-theme');
+    var current = document.documentElement.getAttribute('data-theme');
     sel.value = VALID.indexOf(current) >= 0 ? current : DEFAULT_THEME;
     sel.addEventListener('change', onThemeSelectChange);
   }
@@ -164,20 +178,21 @@
     hljs.highlightAll();
   }
 
-  // === Bootstrap collapse для мобильного меню ===============================
-  // BS5 сам ведёт data-bs-toggle="collapse"; здесь ничего не требуется,
-  // но оставлен якорь на случай, если потребуется делегирование.
+  // === Мобильное меню ========================================================
+  // Тогглер #nav-toggle объявлен выше (initNavToggle): Bootstrap больше не
+  // используется, показ/скрытие меню — класс hidden на #nav-menu.
 
   // === Точка входа ==========================================================
 
   function init() {
-    // К моменту DOMContentLoaded инлайн-скрипт уже выставил data-bs-theme
+    // К моменту DOMContentLoaded инлайн-скрипт уже выставил data-theme
     // (или стоит дефолтный «dark»). Подтянем состояние в одном месте и
     // синхронизируем hljs-таблицу до первого вызова highlightAll().
-    var t = document.documentElement.getAttribute('data-bs-theme') || readTheme();
+    var t = document.documentElement.getAttribute('data-theme') || readTheme();
     applyTheme(t);
     initThemeSelect();
     initHljsThemeSelect();
+    initNavToggle();
     highlightAll();
   }
 

@@ -3,32 +3,36 @@
 
 {% block content %}
 
-  <div class="content-section">
+  <div class="max-w-2xl">
+    <div class="bg-surface border border-line rounded-2xl shadow-lg shadow-black/10 p-8">
 
-    <div class="media d-flex align-items-center mb-4">
-      <img class="rounded-circle account-img me-3"
-           src="{{ image_file }}"
-           alt="Аватар пользователя {{ current_user.username }}">
-      <h2 class="account-heading mb-0">{{ current_user.username }}</h2>
-    </div>
+      {# Аватар с градиентным кольцом #}
+      <div class="flex items-center gap-4 mb-8">
+        <span class="inline-flex rounded-full p-0.5 bg-[image:var(--art-grad)]">
+          <img class="h-20 w-20 rounded-full object-cover border-4 border-surface"
+               src="{{ image_file }}"
+               alt="Аватар пользователя {{ current_user.username }}">
+        </span>
+        <h2 class="text-xl font-semibold text-heading mb-0">{{ current_user.username }}</h2>
+      </div>
 
-    <form method="POST" action="" enctype="multipart/form-data">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <form method="POST" action="" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
-      <fieldset>
-        <legend class="border-bottom mb-4">Данные аккаунта</legend>
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-muted border-b border-line pb-2 mb-6">Данные аккаунта</h3>
 
         {{ field_with_errors(form.username) }}
         {{ field_with_errors(form.email) }}
         {{ file_field(form.picture) }}
-      </fieldset>
 
-      <div class="mb-3">
-        <button type="submit" class="btn btn-outline-info">Update</button>
-      </div>
+        <button type="submit"
+                class="btn-grad w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-semibold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition">
+          Update
+        </button>
 
-    </form>
+      </form>
 
+    </div>
   </div>
 
 {% endblock content %}

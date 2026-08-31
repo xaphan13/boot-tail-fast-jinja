@@ -11,17 +11,19 @@
                        | replace('<h1>', '<h2>')
                        | replace('</h1>', '</h2>') %}
 
-  <article class="art-content">
-    <header class="mb-4">
-      <h1 class="art-title">{{ art.title }}</h1>
-      <div class="info_art text-body-secondary small">
-        <span class="badge text-bg-secondary me-2">{{ art.lang }}</span>
-        <span class="badge text-bg-info me-2">{{ art.author }}</span>
-        <span>#{{ art.art_id }}</span>
-      </div>
-    </header>
+  <article>
+    <div class="bg-surface border border-line rounded-2xl shadow-lg shadow-black/10 p-6 md:p-8">
+      <header class="mb-6">
+        <h1 class="text-3xl font-bold text-heading mb-3">{{ art.title }}</h1>
+        <div class="flex flex-wrap items-center gap-2 text-sm text-muted">
+          <span class="badge">{{ art.lang }}</span>
+          <span class="badge badge-accent">{{ art.author }}</span>
+          <span>#{{ art.art_id }}</span>
+        </div>
+      </header>
 
-    <div class="art-body">{{ body_html|safe }}</div>
+      <div class="art-body">{{ body_html|safe }}</div>
+    </div>
   </article>
 
 {% endblock content %}

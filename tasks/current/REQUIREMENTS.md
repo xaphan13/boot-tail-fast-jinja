@@ -1,140 +1,197 @@
-# Две новые тёмные темы и переключатель темы без перезагрузки
+# Редизайн блога на Tailwind CDN: все 4 темы, современный дизайн
 
-Блог `md_articles` (Jinja2 + FastAPI) сегодня имеет две темы сайта — тёмную (по умолчанию)
-и светлую, переключаемых ссылкой «Тема» в шапке. Нужно добавить ещё две тёмные темы
-с современным дизайном (скруглённые края, градиенты, аккуратные кнопки) и заменить
-переключатель на селектор в шапке, меняющий тему мгновенно, без перезагрузки страницы.
-Дизайн существующих тёмной и светлой тем не меняется. Стили — только Bootstrap 5.3.8
-и highlight.js с CDN (как сейчас), свои стили — в существующем `static/art_css/base.css`.
+Блог `md_articles` (Jinja2 + FastAPI) сегодня стилизован Bootstrap 5.3.8 + свой
+`base.css` на CSS-переменных, 4 темы (`dark`, `light`, `midnight`, `aurora`),
+переключатель — селектор в шапке. Нужно заменить Bootstrap на **Tailwind CSS
+(Play CDN)** и переделать дизайн **всех 4 тем** на современный: скруглённые края,
+градиенты, мягкие тени, аккуратные кнопки и поля. Стили — **только Tailwind CDN
++ highlight.js CDN**; свои стили — в существующем `static/art_css/base.css`.
 
 ## Подтверждённые решения
 
-- Существующие тёмная и светлая темы — не трогать (ни палитру, ни их CSS-блоки).
-- Новых CSS-фреймворков нет: только Bootstrap 5.3.8 + highlight.js с CDN и
-  существующий файл `static/art_css/base.css` на CSS-переменных.
-- Две новые темы — тёмные, «красиво современно»: скруглённые края карточек, кнопок,
-  полей; градиентная шапка; мягкие тени и подсветка фокуса.
-- Переключатель без перезагрузки: селектор в шапке (по образцу селектора hljs-темы),
-  применяется мгновенно через `data-bs-theme` на `<html>`, выбор хранится в
-  `localStorage['theme']`.
-- Идентификаторы новых тем: `midnight` («Полночь» — глубокий сине-фиолетовый) и
-  `aurora` («Северное сияние» — тёмно-изумрудный). Выбраны исполнителем в рамках
-  требования «ещё две тёмные, красиво современно».
-- Подсветка кода (hljs) не меняется: код и так всегда на тёмном фоне, обе новые темы
-  тёмные — совместимы без правок логики `scripts.js` в части hljs.
-
-## Результат
-
-- `static/art_css/base.css`: два новых блока `[data-bs-theme="midnight"]` и
-  `[data-bs-theme="aurora"]` с полным набором `--bs-*` и `--art-*` переменных
-  (Bootstrap сам не применяет тёмные переменные к кастомным значениям атрибута) плюс
-  scoped-правила современного дизайна, действующие ТОЛЬКО в новых темах: скругления
-  карточек/кнопок/полей/кода, градиентная шапка, акцентная боковая панель.
-- `static/art_css/scripts.js`: список валидных тем расширен до
-  `['dark', 'light', 'midnight', 'aurora']`; вместо обработчика клика по ссылке
-  «Тема» — инициализация и обработка селектора `#theme-select` (мгновенное
-  применение, сохранение в localStorage). Логика hljs-темы не меняется.
-- `templates/includes/_head.html`: инлайн-скрипт восстановления темы принимает все
-  4 значения (защита от вспышки неверной темы сохраняется).
-- `templates/includes/_theme_select.html`: новый include — селектор темы сайта
-  (4 option-а, классы как у hljs-селектора).
-- `templates/includes/_header.html`: в обеих ветках (гость/авторизованный) ссылка
-  «Тема» заменена на include селектора темы.
-- Поведение: выбор темы из селектора мгновенно меняет `data-bs-theme` на `<html>`
-  без перезагрузки; выбор переживает перезагрузку страницы; старые значения
-  `dark`/`light` у вернувшихся посетителей продолжают работать (ключ и формат
-  localStorage сохранены); невалидное значение откатывается к `dark`.
-
-## Вне рамок
-
-- Дизайн существующих тёмной (`[data-bs-theme="dark"]`) и светлой
-  (`[data-bs-theme="light"]`) тем — не менять ни одной строки их CSS-блоков.
-- Подсветка кода: список hljs-тем, селектор hljs, логика `syncHighlightTheme` — не менять.
+- Bootstrap 5.3.8 полностью удаляется: CSS-ссылка, JS-bundle, все `data-bs-*`
+  атрибуты и BS-классы в шаблонах.
+- Подключение Tailwind — Play CDN (`https://cdn.tailwindcss.com`) с инлайн-конфигом
+  `tailwind.config` в `_head.html`: семантические цвета (`page`, `surface`, `ink`,
+  `line`, `accent`, ...) замаплены на CSS-переменные `--art-*`. Шаблоны пишутся
+  один раз, темы различаются только значениями переменных.
+- Атрибут темы на `<html>`: `data-bs-theme` → `data-theme` (Bootstrap ушёл).
+  Значения и ключ хранения НЕ меняются: `localStorage['theme']`,
+  `['dark', 'light', 'midnight', 'aurora']`, дефолт `dark` — совместимость
+  с вернувшимися посетителями сохранена.
+- Все 4 темы переделываются на единый современный дизайн-язык (скругления
+  `rounded-xl/2xl`, градиентная шапка, мягкие тени, hover-подъём карточек и кнопок);
+  палитры тем сохраняют свою индивидуальность (тёмная графитовая, светлая тёплая,
+  сине-фиолетовая «Полночь», изумрудная «Северное сияние»).
+- Мобильное меню: collapse Bootstrap удаляется — тогглер-гамбургер реализуется
+  в `scripts.js` (toggle класса `hidden`, aria-expanded).
+- Подсветка кода highlight.js не меняется: CDN-ссылки, 15 тёмных тем, селектор,
+  логика `syncHighlightTheme` в `scripts.js` сохраняются (меняется только
+  атрибут темы сайта `data-bs-theme` → `data-theme` и классы разметки селекторов).
 - Python-код (`md_articles/`, роутеры, модели), Alembic, конфигурация — не трогать;
   задача чисто фронтенд-статика.
 - Контент статей `templates/content_art/`, аватары `static/profile_pics/` — не трогать.
 - Никаких эмодзи в коде, комментариях и логах.
 
+## Результат
+
+- `templates/includes/_head.html`: Tailwind Play CDN + инлайн-конфиг
+  (семантические цвета на `--art-*` переменных); инлайн-скрипт восстановления
+  темы ставит `data-theme`; Bootstrap CSS удалён; hljs-блок без изменений.
+- `templates/includes/_scripts.html`: Bootstrap bundle удалён; остаются hljs
+  и `scripts.js`.
+- `static/art_css/scripts.js`: `data-bs-theme` → `data-theme`; добавлен тогглер
+  мобильного меню (`#nav-toggle` / `#nav-menu`); логика hljs сохранена.
+- `static/art_css/base.css`: переписан — 4 блока переменных `[data-theme=...]`
+  (включая `--art-grad` фирменный градиент каждой темы) + базовая типографика,
+  типографика Markdown-тела статьи (`.art-body`), мелкие правила для hljs.
+  Компонентный дизайн переносится в Tailwind-классы шаблонов.
+- `templates/layout.html`, `includes/_header.html`, `_sidebar.html`,
+  `_footer_macro.html`, `_theme_select.html`, `_hljs_theme_select.html`,
+  `_flash_msg.html`, `_form_macro.html`: разметка на Tailwind-классах
+  (фиксированная градиентная шапка, пилюли-ссылки, скруглённые селекторы,
+  карточки-алерты, скруглённые поля форм с состояниями ошибок).
+- Страницы `login.html`, `register.html`, `account.html`, `about.html`,
+  `new_art/art_home.html`, `new_art/art_author.html`, `new_art/art_manage.html`,
+  `errors/403.html`, `errors/404.html`, `errors/500.html`: карточки, кнопки,
+  бейджи, таблицы — на Tailwind-классах, современный вид во всех 4 темах.
+- Поведение переключателя темы сохранено: мгновенная смена без перезагрузки,
+  выбор переживает перезагрузку, невалидное значение откатывается к `dark`.
+
+## Вне рамок
+
+- Список hljs-тем, их CDN-ссылки, логика `syncHighlightTheme` — не менять
+  (кроме неизбежной смены атрибута темы сайта).
+- Идентификаторы/ключи тем: `dark`/`light`/`midnight`/`aurora`,
+  `localStorage['theme']` — не менять.
+- Python-код, миграции, конфигурация — не трогать.
+- Контент статей и аватары — не трогать.
+
 ## План фаз
 
 Единица исполнения — фаза: одно делегирование, 1–3 файла, бюджет ~10–15 ходов.
-Следующая фаза стартует только после зелёного checkpoint и ревью диффа оркестратором.
-Прогресс фазы разработчик фиксирует в `tasks/current/dev/phaseNN_progress.md`.
+Следующая фаза стартует только после зелёного checkpoint и ревью диффа
+оркестратором. Прогресс фазы разработчик фиксирует в `tasks/current/dev/phaseNN_progress.md`.
 
 | # | Фаза | Исполнитель | Файлы | Контракт | Checkpoint | Бюджет ходов |
 |---|---|---|---|---|---|---|
-| 1 | JS-модель 4 тем + селектор | frontend-dev | `scripts.js`, `_head.html` | VALID=['dark','light','midnight','aurora']; селектор `#theme-select`; localStorage['theme'] | синтаксис JS проверен; `python -c "from main import main_app; print(len(main_app.routes))"` = 41 | ~8 |
-| 2 | CSS двух новых тем | frontend-dev | `base.css` | блоки `[data-bs-theme="midnight"]`, `[data-bs-theme="aurora"]` + scoped-правила; блоки dark/light не изменены | `git diff` касается только новых секций; CSS отдаётся 200 | ~10 |
-| 3 | Шаблоны шапки | frontend-dev | `_theme_select.html`, `_header.html` | include селектора в обеих ветках шапки, ссылка «Тема» удалена | страницы содержат `id="theme-select"`, не содержат `theme-toggle` | ~6 |
-| 4 | Проверка | qa | `tasks/current/e2e/`, `DEFECTS.md` | curl-сценарии из критериев успеха | все критерии зелёные | ~8 |
+| 1 | Tailwind CDN + JS-модель тем | frontend-dev | `_head.html`, `_scripts.html`, `scripts.js` | Tailwind CDN + конфиг; `data-theme`; Bootstrap удалён; тогглер меню | приложение стартует, роутов 41 | ~10 |
+| 2 | base.css: 4 палитры + типографика | frontend-dev | `base.css` | 4 блока `[data-theme=...]` с полным набором `--art-*` + `--art-grad`; типографика и `.art-body` | CSS отдаётся 200, скобки сбалансированы | ~8 |
+| 3 | Каркас: layout + шапка/сайдбар/футер/селекторы | frontend-dev | `layout.html`, `_header.html`, `_sidebar.html`, `_footer_macro.html`, `_theme_select.html`, `_hljs_theme_select.html` | градиентная fixed-шапка, гамбургер, пилюли-ссылки, скруглённые селекторы | `/login` содержит `data-theme`, `cdn.tailwindcss.com`, `id="theme-select"`, без `data-bs-` | ~12 |
+| 4 | Флеш-сообщения + макрос форм + страницы аккаунта | frontend-dev | `_flash_msg.html`, `_form_macro.html`, `login.html`, `register.html`, `account.html`, `about.html` | карточки-алерты, скруглённые поля с ошибками, градиентные кнопки | формы `/login`, `/register`, `/account` отдаются 200 и без BS-классов | ~12 |
+| 5 | Страницы статей | frontend-dev | `art_home.html`, `art_author.html`, `art_manage.html` | карточки статей с hover-подъёмом, бейджи-пилюли, таблица управления | `/art_home`, статья, `/art_manage` отдаются 200 | ~10 |
+| 6 | Страницы ошибок | frontend-dev | `errors/403.html`, `errors/404.html`, `errors/500.html` | карточки ошибок на Tailwind-классах | HTML-ошибки 403/404/500 без BS-классов | ~5 |
+| 7 | Проверка | qa | `tasks/current/e2e/`, `DEFECTS.md` | curl-сценарии из критериев успеха | все критерии зелёные | ~8 |
 
-### Фаза 1: JS-модель 4 тем + селектор
+### Фаза 1: Tailwind CDN + JS-модель тем
 
-- Файлы: `fastapi-application/static/art_css/scripts.js`,
-  `fastapi-application/templates/includes/_head.html`.
+- Файлы: `templates/includes/_head.html`, `templates/includes/_scripts.html`,
+  `static/art_css/scripts.js`.
 - Контракт:
-  - `VALID = ['dark', 'light', 'midnight', 'aurora']`; дефолт при невалидном
-    значении — `'dark'` (как сейчас).
-  - Ключ хранения — `localStorage['theme']` (не менять: совместимость с визитами).
-  - Новый элемент управления: `<select id="theme-select">`; на `change` —
-    `applyTheme(value)` + запись в localStorage; при init селектору проставляется
-    текущее значение с `<html>`.
-  - Инлайн-скрипт в `_head.html` применяет `data-bs-theme` только для значений из
-    VALID.
-- Шаги: правка scripts.js (заменить toggle-обработчик на select-обработчик,
-  обновить комментарии), правка инлайн-скрипта `_head.html`.
-- Checkpoint: `node --check` недоступен — проверять чтением и запуском приложения
-  (`cd fastapi-application && ../.venv/bin/python -c "from main import main_app;
-  print(len(main_app.routes))"` → 41).
-- Готовность фазы: JS и шаблон согласованы по списку значений, приложение стартует.
+  - `_head.html`: `<script src="https://cdn.tailwindcss.com"></script>` +
+    инлайн `tailwind.config = { theme: { extend: { colors: { ... 'var(--art-*)' } } } }`;
+    семантические имена минимум: `page` (фон), `surface` (карточки), `surface2`,
+    `ink` (текст), `muted`, `line` (границы), `accent`, `accent-strong`,
+    `heading`, `codebg`, `codeink`, `ok`, `warn`, `danger`. Инлайн-скрипт
+    восстановления темы ставит `data-theme` (валидация 4 значений сохранена).
+    Bootstrap CSS-ссылка удалена. hljs-ссылки не тронуты.
+  - `_scripts.html`: удалить Bootstrap bundle; hljs и `scripts.js` остаются.
+  - `scripts.js`: `applyTheme` ставит `data-theme`; новый тогглер
+    `initNavToggle()` — кнопка `#nav-toggle` переключает `hidden` у `#nav-menu`
+    и синхронизирует `aria-expanded`; остальная логика без изменений.
+- Checkpoint: `cd fastapi-application && ../.venv/bin/python -c "from main import
+  main_app; print(len(main_app.routes))"` → 41.
+- Готовность: JS синтаксически цел, шаблоны головы отдаются без Bootstrap.
 
-### Фаза 2: CSS двух новых тем
+### Фаза 2: base.css — 4 палитры + типографика
 
-- Файлы: `fastapi-application/static/art_css/base.css`.
+- Файлы: `static/art_css/base.css` (переписать целиком).
 - Контракт:
-  - Новые секции добавляются в конец файла; существующие блоки
-    `[data-bs-theme="dark"]` и `[data-bs-theme="light"]` — без изменений.
-  - Каждый новый блок задаёт: `--bs-body-bg`, `--bs-body-color`,
-    `--bs-secondary-color`, `--bs-secondary-bg`, `--bs-tertiary-bg`,
-    `--bs-border-color`, `--bs-link-color`, `--bs-link-hover-color`,
-    `--bs-emphasis-color` и весь набор `--art-*` (те же имена, что в dark/light).
-  - Scoped-правила современного дизайна — только под новыми темами (групповой
-    селектор `[data-bs-theme="midnight"], [data-bs-theme="aurora"]` либо по одной
-    теме): скругления `.content-section`, `.art-card`, `.btn`, `.form-control`,
-    `.form-select`, `pre`, `.hljs`, `.account-img`; градиентный фон `.backcolor-header`
-    и цвет бренда/ссылок шапки; акцентные ссылки сайдбара (перекрыть фиксированный
-    оранжевый `!important` внутри новых тем); мягкие тени карточек; цвет inline-кода.
-- Шаги: дописать две палитры, затем общий блок современных правил.
-- Checkpoint: `git diff --stat` — изменён только `base.css`; блоки dark/light в diff
-  отсутствуют.
-- Готовность фазы: файл синтаксически цел (скобки сбалансированы), переменные
-  покрывают весь список из контракта.
+  - 4 блока: `[data-theme="dark"]`, `[data-theme="light"]`,
+    `[data-theme="midnight"]`, `[data-theme="aurora"]`.
+  - В каждом: `--art-page`, `--art-surface`, `--art-surface-2`, `--art-ink`,
+    `--art-muted`, `--art-line`, `--art-accent`, `--art-accent-strong`,
+    `--art-heading`, `--art-header-from/via/to` (градиент шапки), `--art-grad`
+    (фирменный градиент кнопок/акцентов), `--art-ring` (фокус), `--art-code-bg`,
+    `--art-code-ink`, `--art-ok`, `--art-warn`, `--art-danger`.
+  - Имена переменных согласованы с `tailwind.config` фазы 1.
+  - Базовая типографика: body, ссылки, заголовки; типографика `.art-body`
+    (p, h2-h3, списки, blockquote, table, inline-code); мягкие правила для
+    `pre`/`.hljs` (скругление, паддинги) и `.hljs-theme-select`.
+- Checkpoint: `curl -s .../static/art_css/base.css | grep -c 'data-theme'` >= 4;
+  скобки сбалансированы.
+- Готовность: все переменные из контракта определены во всех 4 темах.
 
-### Фаза 3: Шаблоны шапки
+### Фаза 3: Каркас — layout, шапка, сайдбар, футер, селекторы
 
-- Файлы: `fastapi-application/templates/includes/_theme_select.html` (новый),
-  `fastapi-application/templates/includes/_header.html`.
+- Файлы: `templates/layout.html`, `includes/_header.html`,
+  `includes/_sidebar.html`, `includes/_footer_macro.html`,
+  `includes/_theme_select.html`, `includes/_hljs_theme_select.html`.
 - Контракт:
-  - `_theme_select.html`: `<li class="nav-item hljs-theme-select-item
-    d-flex align-items-center">` c `<select class="form-select form-select-sm
-    hljs-theme-select" id="theme-select" aria-label="Тема сайта">` и 4 option-ами:
-    dark=«Тёмная», light=«Светлая», midnight=«Полночь», aurora=«Северное сияние».
-    Значения option-ов = VALID из scripts.js.
-  - `_header.html`: строка `<li ... id="theme-toggle" ...>Тема</li>` в обеих ветках
-    заменена на `{% include "includes/_theme_select.html" %}`.
-- Шаги: создать include, заменить две строки в `_header.html`.
-- Checkpoint: запустить приложение и curl `/login` — в HTML есть
-  `id="theme-select"`, нет `theme-toggle`.
-- Готовность фазы: обе ветки шапки (гость и авторизованный) используют include.
+  - `layout.html`: `<html lang="ru" data-theme="dark">`; каркас — fixed-шапка,
+    main с отступом, сетка контента (сайдбар + статья) на Tailwind, футер.
+  - `_header.html`: градиентная шапка (`bg-gradient-to-r` из `--art-header-*`),
+    бренд с градиентным текстом, гамбургер `#nav-toggle`, меню `#nav-menu`
+    (скрыто на мобильных, `hidden md:flex`), ссылки-пилюли с hover-подсветкой;
+    обе ветки (гость/авторизованный) включают оба селектора.
+  - `_theme_select.html` / `_hljs_theme_select.html`: те же `id` и option-ы,
+    классы — Tailwind (скруглённый select на фоне шапки). id `theme-select` и
+    `hljs-theme-select` не менять.
+  - `_sidebar.html`: пилюли-ссылки с hover-подъёмом.
+  - `_footer_macro.html`: тёмная панель, центрированные ссылки, копирайт.
+- Checkpoint: `curl -s http://127.0.0.1:8000/login` содержит `data-theme`,
+  `cdn.tailwindcss.com`, `id="theme-select"`, `id="hljs-theme-select"` и не
+  содержит `data-bs-` и `navbar`.
+- Готовность: шапка собирается в обеих ветках, селекторы на месте.
 
-### Фаза 4: Проверка
+### Фаза 4: Флеш-сообщения, макрос форм, страницы аккаунта
+
+- Файлы: `includes/_flash_msg.html`, `includes/_form_macro.html`,
+  `login.html`, `register.html`, `account.html`, `about.html`.
+- Контракт:
+  - `_flash_msg.html`: карточка-алерт со скруглением и цветом по категории
+    (`success`/`danger`/`info`/`warning` → `--art-ok/danger/...`).
+  - `_form_macro.html`: контракт данных макроса НЕ меняется (form dict, поля
+    name/id/type/label/value/errors); разметка — Tailwind: скруглённые поля,
+    состояние ошибки — красная рамка + список сообщений.
+  - Страницы: карточка `surface rounded-2xl shadow`, кнопка — градиентная
+    пилюля, account — аватар с кольцом-градиентом.
+- Checkpoint: GET `/login`, `/register`, `/about` → 200; POST с ошибкой
+  `/register` отдаёт форму с сообщением об ошибке и без `is-invalid`/`invalid-feedback`.
+- Готовность: все формы выглядят единообразно, ошибки читаемы.
+
+### Фаза 5: Страницы статей
+
+- Файлы: `new_art/art_home.html`, `new_art/art_author.html`,
+  `new_art/art_manage.html`.
+- Контракт:
+  - `art_home.html`: список статей — карточки `rounded-2xl` с hover-подъёмом
+    и тенью; бейджи языка/автора — пилюли; ссылки и структура данных не меняются.
+  - `art_author.html`: шапка статьи (заголовок, бейджи, номер), тело `.art-body`;
+    понижение h1→h2 в теле сохраняется.
+  - `art_manage.html`: alert yaml_error, три секции-карточки, таблица реестра
+    (Tailwind-классы, скруглённый контейнер, тинт шапки, hover строк),
+    inline-формы строк, списки файлов — карточки; имена полей/роутов/CSRF
+    не меняются.
+- Checkpoint: `/art_home` → 200; GET любой статьи → 200; `/art_manage` → 200
+  (под авторизацией) либо редирект/403 без неё.
+- Готовность: страницы статей полностью на Tailwind.
+
+### Фаза 6: Страницы ошибок
+
+- Файлы: `errors/403.html`, `errors/404.html`, `errors/500.html`.
+- Контракт: карточка с крупным кодом ошибки (градиентный текст), заголовок,
+  пояснение, ссылка-кнопка «На главную». Структура extends layout сохраняется.
+- Checkpoint: HTML-ответы 403/404/500 содержат разметку без BS-классов.
+- Готовность: три страницы ошибок единообразны.
+
+### Фаза 7: Проверка
 
 - Файлы: `tasks/current/e2e/` (заметки прогона), `tasks/current/DEFECTS.md`
   (если найдены дефекты).
-- Шаги: поднять приложение, прогнать curl-сценарии критериев успеха, зафиксировать
-  сырые выводы.
+- Шаги: поднять приложение, прогнать curl-сценарии критериев успеха,
+  зафиксировать сырые выводы.
 - Checkpoint: все критерии успеха зелёные либо дефекты заведены в DEFECTS.md.
-- Готовность фазы: отчёт прогона в `tasks/current/e2e/`.
 
 ## Критерии успеха
 
@@ -143,14 +200,16 @@
 | # | Критерий | Проверка | Ожидание |
 |---|---|---|---|
 | 1 | Приложение стартует, роуты не потеряны | `cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"` | 41 |
-| 2 | Страницы отдаются | `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/` и `/art_home`, `/login`, `/about` | 200 |
-| 3 | Селектор темы в шапке, 4 варианта | `curl -s http://127.0.0.1:8000/login \| grep -c 'theme-select'` и подсчёт option | select присутствует; option-ы: dark, light, midnight, aurora |
-| 4 | Старая ссылка «Тема» удалена | `curl -s http://127.0.0.1:8000/login \| grep -c 'theme-toggle'` | 0 |
-| 5 | CSS отдаётся и содержит новые темы | `curl -s http://127.0.0.1:8000/static/art_css/base.css \| grep -c 'data-bs-theme="midnight"\|data-bs-theme="aurora"'` | >= 2 вхождений групп селекторов |
-| 6 | JS отдаётся и знает 4 темы | `curl -s http://127.0.0.1:8000/static/art_css/scripts.js \| grep -c "aurora"` | >= 1 |
-| 7 | Существующие темы не тронуты | `git diff -- fastapi-application/static/art_css/base.css` | нет правок внутри блоков dark/light (только добавления) |
-| 8 | Регресс: hljs-селектор и подсветка на месте | `curl -s http://127.0.0.1:8000/login \| grep -c 'hljs-theme-select'` | >= 1 |
-| 9 | Инлайн-скрипт валидирует 4 значения | просмотр HTML страницы | в `_head.html`-фрагменте есть midnight и aurora |
+| 2 | Страницы отдаются | GET `/`, `/art_home`, `/login`, `/register`, `/about` | 200 |
+| 3 | Tailwind CDN подключён | `curl -s http://127.0.0.1:8000/login \| grep -c 'cdn.tailwindcss.com'` | >= 1 |
+| 4 | Bootstrap удалён | `curl -s http://127.0.0.1:8000/login \| grep -ci 'bootstrap'` | 0 |
+| 5 | Атрибут темы новый | `curl -s http://127.0.0.1:8000/login \| grep -c 'data-theme="dark"'`; `grep -c 'data-bs-theme'` | >= 1; 0 |
+| 6 | Селектор темы на месте, 4 option | `curl -s .../login \| grep -c 'id="theme-select"'` и подсчёт option | 1; dark, light, midnight, aurora |
+| 7 | hljs не тронут | `curl -s .../login \| grep -c 'hljs-theme-select'`; `grep -c 'highlightjs/cdn-release@11.12.0'` | >= 1; >= 1 |
+| 8 | base.css содержит 4 темы | `curl -s .../static/art_css/base.css \| grep -c '\[data-theme='` | >= 4 |
+| 9 | scripts.js знает 4 темы и тогглер | `curl -s .../static/art_css/scripts.js \| grep -c 'aurora'`; `grep -c 'nav-toggle'` | >= 1; >= 1 |
+| 10 | Страницы ошибок на Tailwind | curl несуществующий путь; 403 без прав | HTML без `navbar`/`data-bs-`, есть `data-theme` |
+| 11 | Регресс старых проверок | `/docs` 200; `/users/get_all_users`; `/art_home` 200 | без изменений |
 
 ## Финальные критерии
 
@@ -162,9 +221,32 @@
 
 ## Открытые вопросы
 
-Закрываются с пользователем ДО старта исполнения; ответы переезжают
-в «Подтверждённые решения».
+Закрыты пользователем 2026-08-31 (ответ: «Подтверждаю»):
 
-- Названия/палитры новых тем утверждены исполнителем (midnight — сине-фиолетовая,
-  aurora — изумрудная); при желании пользователь может попросить другие имена —
-  правка локализована в трёх файлах (base.css, _theme_select.html, scripts.js).
+- Палитры 4 тем обновлены под современный дизайн с сохранением характера
+  каждой (dark — графит/голубой, light — тёплый бумажный, midnight —
+  сине-фиолетовый, aurora — изумрудный). Имена тем не менялись.
+- Фаза 1, выполненная до подтверждения, оставлена как есть; исполнение
+  продолжено с фазы 2.
+- База маршрутов — 42 (число 41 в AGENTS.md устарело; правки задания
+  Python-код не затрагивают).
+
+## Отчёт о выполнении
+
+- Дата закрытия: 2026-08-31.
+- Итог: Bootstrap 5.3.8 удалён полностью (CSS, JS, классы, data-bs-*),
+  подключён Tailwind Play CDN с инлайн-конфигом на `--art-*` переменных;
+  все 4 темы (dark, light, midnight, aurora) переделаны на единый
+  современный дизайн: скруглённые карточки/кнопки/поля, градиентная шапка,
+  градиентные кнопки и бейджи-пилюли, мягкие тени, hover-подъёмы;
+  переключатель темы сохранён (data-theme, localStorage['theme'],
+  мгновенно, без перезагрузки); highlight.js не тронут; мобильное меню —
+  тогглер в scripts.js вместо BS-collapse.
+- Изменения: 19 шаблонов (layout, 8 includes, 4 страницы, 3 статьи,
+  3 ошибки), base.css (переписан), scripts.js, _head.html, _scripts.html.
+  Python-код не менялся.
+- Проверка: все 11 критериев успеха зелёные, доказательства —
+  tasks/current/e2e/run-notes.md; прогресс фаз — tasks/current/dev/.
+- Дефекты: не найдены, DEFECTS.md не создавался.
+- Adversarial-прогон: не назначался (исполнение вёл оркестратор-сессия
+  напрямую с пользователем).
