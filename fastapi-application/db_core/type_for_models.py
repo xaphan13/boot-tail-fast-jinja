@@ -30,13 +30,37 @@ time_stamp_utc = Annotated[
 ]
 
 
+str_len_20 = Annotated[
+    str,
+    mapped_column(String(20)),
+]
+
+
 str_len_50 = Annotated[
     str,
     mapped_column(String(50)),
 ]
 
 
+str_len_60 = Annotated[
+    str,
+    mapped_column(String(60)),
+]
+
+
 str_len_100 = Annotated[
     str,
     mapped_column(String(100)),
+]
+
+
+str_len_120 = Annotated[
+    str,
+    mapped_column(String(120)),
+]
+
+
+text_content = Annotated[
+    str,
+    mapped_column(String(10000)),
 ]

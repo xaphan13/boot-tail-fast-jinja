@@ -9,7 +9,7 @@
 ## Обзор проекта
 
 Учебно-демонстрационный проект на **FastAPI 0.111+ / Python 3.12** — исполняемый каталог
-приёмов, а не продуктовый сервис. Две части:
+приёмов, а не продуктовый сервис. Три части:
 
 1. **Демонстрационная** (`api/`) — показывает варианты одного и того же решения рядом:
    девять способов `Depends`, один эндпоинт `/my_items/{item_id}` в четырёх стилях
@@ -17,6 +17,10 @@
 2. **Рабочая** (`example_sql/`, `ex_order_product/`, `db_core/`) — асинхронный слой
    данных на SQLAlchemy 2.0 с миграциями Alembic и двумя доменами: `User`/`Post`
    (one-to-many) и `Order`/`Product` (many-to-many через явную ассоциативную модель).
+3. **Блог** (`md_articles/` + `templates/` + `static/`) — серверный рендеринг Jinja2:
+   статьи из YAML-реестра с Markdown-рендером, вход/регистрация/аккаунт (сессии, bcrypt,
+   аватары), управление реестром, HTML-ошибки 403/404/500. Порт flask-blog-1 (исходник
+   `templates_flaskblog/`, только для чтения) — [`docs/11_md_articles.md`](docs/11_md_articles.md).
 
 **Дублирование маршрутов и обработчиков в `api/` намеренное** — сравнивать файлы
 построчно и есть учебная цель. Не «рефакторьте» это в общий код, не выяснив задачу.
@@ -33,6 +37,7 @@
 | Миграции | Alembic (асинхронный env.py) |
 | ASGI-сервер | uvicorn (dev), gunicorn + UvicornWorker (multi-worker) |
 | Сериализация | orjson |
+| Шаблоны блога | Jinja2 (Jinja2Templates), статика — StaticFiles на `/static` |
 | Линтеры | ruff + black (объявлены в зависимостях проекта) |
 
 **В проекте нет тестов** — изменения проверяются запуском приложения и curl.
@@ -41,24 +46,32 @@
 
 `fastapi-application/create_fastapi.py` предоставляет фабрику `create_app()` с `lifespan`
 (engine создаётся на импорте, dispose — в shutdown). `main.py` собирает `main_app`
-и подключает три корневых роутера:
+и подключает три корневых роутера; `create_app()` дополнительно вызывает
+`md_articles.register_md_articles(app)` — сессии, статика `/static`, HTML-обработчики
+ошибок и три роутера блога (детали — [`docs/11_md_articles.md`](docs/11_md_articles.md)):
 
 | Роутер | Модуль | Префикс | Что внутри |
 |---|---|---|---|
 | `router_api` | `api/__init__.py` | `/api/v1` | `dep_examples/` (9 роутов Depends) + 4 стиля `/my_items/{item_id}` |
 | `r_users_sql` | `example_sql/router_users.py` | `/users` | CRUD-слой домена User/Post (2 роута) |
 | `r_order_one` | `ex_order_product/router_order_one.py` | `/orders` | 6 роутов Order: ORM/Core запись, фильтры, сортировка, joinedload |
+| `router_main` | `md_articles/routes_main.py` | `/` | `/`, `/home` (307 → `/art_home`), `/about` |
+| `router_users` | `md_articles/routes_users.py` | `/` | блог: register/login/logout/account |
+| `router_articles` | `md_articles/routes_articles.py` | `/` | блог: `/art_home`, `/art/{author}/{art_id}`, `/art_manage*` |
 
-Итого 25 маршрутов: 21 API + служебные `/docs`, `/redoc`, `/openapi.json`,
-`/docs/oauth2-redirect` (кастомные Swagger/ReDoc регистрирует `utils/docs.py`).
+Итого 41 route-объект: 25 старых (21 API + служебные `/docs`, `/redoc`, `/openapi.json`,
+`/docs/oauth2-redirect` — кастомные Swagger/ReDoc регистрирует `utils/docs.py`) +
+15 объектов блога (11 имён: пары GET/POST у `/register`, `/login`, `/account` и пара
+`/`+`/home` дают по отдельному объекту) + mount `/static`.
 
 ```
 my-fastapi-one/                 <- корень репозитория; здесь запускается qwen-code
 ├── QWEN.md AGENTS.md README.md  контекст + правила команды (этот комплект)
 ├── tasks/                       задания команды: current/ — живое, NNN-<slug>/ — архив (ведёт оркестратор)
 ├── .qwen/agents/                субагенты: frontend-dev, backend-dev, qa, adversary
-├── docs/                        подробная документация по проекту (10 файлов, рус.)
+├── docs/                        подробная документация по проекту (11 файлов, рус.)
 ├── templates_qwen_agents/       комплект агентного режима из другого проекта — ТОЛЬКО пример, не трогать
+├── templates_flaskblog/         исходник блога (Flask) — ТОЛЬКО пример, не трогать
 ├── docker-compose.yml           dev-стек: pg + adminer + pgadmin
 ├── nginx_pg_admin.yml           прод-подобный стек: pg + pgadmin + redis + nginx (TLS)
 ├── Makefile                     запуск uvicorn, alembic, docker network
@@ -66,7 +79,7 @@ my-fastapi-one/                 <- корень репозитория; здес
 └── fastapi-application/         корень Python-приложения (= BASE_DIR)
     ├── main.py                  точка входа uvicorn: main_app + main()
     ├── main_gunicorn.py         точка входа gunicorn (переиспользует main_app)
-    ├── create_fastapi.py        фабрика create_app() + lifespan
+    ├── create_fastapi.py        фабрика create_app() + lifespan + register_md_articles
     ├── base_dir_path.py         DIR_CWD / BASE_DIR (Path)
     ├── config_log.py            ConfigLogger: dictConfig, файл+stdout
     ├── one.env two.env          профили БД: postgres / sqlite (закоммичены, sqlite активен)
@@ -75,7 +88,10 @@ my-fastapi-one/                 <- корень репозитория; здес
     ├── api/                     демонстрационная часть: dependencies/ + my_routes_dep/
     ├── example_sql/             домен User/Post: router + crud + models + schemas
     ├── ex_order_product/        домен Order/Product: router + models + schemas
-    ├── alembic/                 асинхронные миграции (2 ревизии)
+    ├── md_articles/             блог: роутеры, schema_art, модели BlogUser/BlogPost, web_utils
+    ├── templates/               Jinja2-шаблоны блога (19 файлов) + content_art/ (.md кладёт пользователь)
+    ├── static/                  art_css/ (base.css, scripts.js) + profile_pics/ (аватары)
+    ├── alembic/                 асинхронные миграции (3 ревизии)
     ├── utils/docs.py            кастомные Swagger/ReDoc
     └── log/                     вывод логов (путь от BASE_DIR)
 ```
@@ -97,6 +113,7 @@ my-fastapi-one/                 <- корень репозитория; здес
 | [`docs/08_ideas_di_api.md`](docs/08_ideas_di_api.md) | идеи развития: DI и API-слой |
 | [`docs/09_ideas_data_layer.md`](docs/09_ideas_data_layer.md) | идеи развития: слой данных |
 | [`docs/10_ideas_testing_infra.md`](docs/10_ideas_testing_infra.md) | идеи развития: тесты, конфигурация, инфраструктура |
+| [`docs/11_md_articles.md`](docs/11_md_articles.md) | блог md_articles: архитектура, маршруты, отличия от Flask-версии |
 
 ## Индекс кодовой базы
 
@@ -157,11 +174,12 @@ Ruff и black объявлены в зависимостях проекта — 
 Тестов нет, поэтому изменения проверяются запуском самого приложения:
 
 ```bash
-cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"   # ожидается 25
+cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"   # ожидается 41
 ../.venv/bin/uvicorn main:main_app --port 8000    # затем curl:
 curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/docs
 curl -s http://127.0.0.1:8000/api/v1/dep_examples/single-direct-dependency
 curl -s http://127.0.0.1:8000/users/get_all_users
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/art_home
 ```
 
 Не утверждайте, что изменение проверено, без фактического запуска. Если проверить
@@ -322,15 +340,16 @@ nginx находятся в `.gitignore` — никогда не добавля�
 
 | Агент | Зона (можно редактировать) | Чем проверяет изменения | Особые запреты |
 |---|---|---|---|
-| frontend-dev | `nginx/web/` | сборка образа nginx не требуется: просмотр страницы; если задание требует — curl через поднятый nginx; скриншот в `tasks/current/screenshots/` | Python-модули `fastapi-application/` — зона backend-dev |
-| backend-dev | Python-модули `fastapi-application/` (включая `alembic/`, env-профили) | `uv run ruff check .`; `cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"` (ожидается 25); curl изменённых эндпоинтов на запущенном приложении | `nginx/web/`; устаревшие API из раздела «Известные дефекты» — не чинить без отдельного задания; дублирование `api/my_routes_dep/` — намеренное |
-| qa | `tasks/current/e2e/`, `tasks/current/DEFECTS.md`, `tasks/current/screenshots/` | curl-сценарии из критериев успеха текущего задания; регресс: `/docs`, `/users/get_all_users`, `/orders/get_all_orders`, один из `/api/v1/dep_examples/*` | любой код продукта |
+| frontend-dev | `nginx/web/`, а также Jinja2-шаблоны и статика блога: `fastapi-application/templates/` (кроме контента `content_art/` — статьи кладёт пользователь), `fastapi-application/static/` | просмотр страницы; если задание требует — curl через поднятое приложение; скриншот в `tasks/current/screenshots/` | Python-модули `fastapi-application/` — зона backend-dev |
+| backend-dev | Python-модули `fastapi-application/` (включая `alembic/`, env-профили, `md_articles/`) | `uv run ruff check .`; `cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"` (ожидается 41); curl изменённых эндпоинтов на запущенном приложении | `nginx/web/`, `fastapi-application/templates/`, `fastapi-application/static/`; устаревшие API из раздела «Известные дефекты» — не чинить без отдельного задания; дублирование `api/my_routes_dep/` — намеренное; поведение блога `md_articles/` — порт flask-blog-1, «улучшательства» без отдельного задания запрещены |
+| qa | `tasks/current/e2e/`, `tasks/current/DEFECTS.md`, `tasks/current/screenshots/` | curl-сценарии из критериев успеха текущего задания; регресс: `/docs`, `/users/get_all_users`, `/orders/get_all_orders`, один из `/api/v1/dep_examples/*`, `/art_home` | любой код продукта |
 | adversary | `tasks/current/ADVERSARIAL_REVIEW.md`, `tasks/current/screenshots/` | curl по запущенному приложению; логи `fastapi-application/log/` | всё, кроме своих файлов |
 
 Общее для всех: не редактировать `.qwen/`, `tasks/current/REQUIREMENTS.md`, папки
 архивных заданий `tasks/NNN-*`, `AGENTS.md`, `QWEN.md`, `README.md`, `docs/`,
-`templates_qwen_agents/`; не добавлять зависимости и тестовые фреймворки без решения
-оркестратора. Обновление документации в `docs/` координирует оркестратор.
+`templates_qwen_agents/`, `templates_flaskblog/`; не добавлять зависимости и тестовые
+фреймворки без решения оркестратора. Обновление документации в `docs/` координирует
+оркестратор.
 
 Границы ролей обеспечиваются системным промптом каждого агента и конфигурацией
 инструментов. Не обходите их командами оболочки: если инструкции говорят, что файл
@@ -364,6 +383,32 @@ nginx находятся в `.gitignore` — никогда не добавля�
 - Объединять команды проверки в пачки (один shell-вызов — несколько curl/команд),
   сырые выводы сразу писать в файл (`tasks/current/e2e/`), а не пересказывать в чате.
 - Ошибку читать и исправлять, а не повторять ту же команду вслепую.
+- Работать на минимум ходов: чем короче прогон, тем дешевле каждый следующий ход.
+
+Правило для оркестратора: главный источник перерасхода — **backend-dev**. Прогон,
+который пишет код, тяжелеет быстрее всех: каждый ход дописывает контекст чтением
+исходников, полными `write_file` и traceback'ами ошибок. Формат qa/adversary (пачки
+curl одним shell-вызовом, сырые выводы сразу в файл) дешёвый — его не менять.
+Правила делегирования backend-dev:
+
+1. Один запуск backend-dev = один короткий прогон: 1–3 модуля, не «весь бэкенд».
+   Объём уровня «пакет из ~8 модулей + миграция» режется на 3–4 последовательных
+   делегирования (инфраструктура+зависимости → модели+миграция → утилиты+роутеры →
+   подключение+smoke), каждое — со своим мини-отчётом и проверками.
+2. В спецификации — только: какие файлы, контракт (имена/поведение), список проверок.
+   Детали — в файл задания (`tasks/current/`), который читается один раз, а не в текст
+   спецификации, пересылаемый каждый ход.
+3. В спецификацию backend-dev явно включать: читать только свою зону правок (не весь
+   репозиторий), каждый файл писать одним `write_file` без перечитывания, сырые выводы
+   команд — сразу в файл, ошибку чинить узко (правка + одна контрольная команда),
+   не гонять весь smoke заново.
+4. Упёршийся в лимит / упавший прогон не продолжать: узкий перезапуск «доделай X»
+   с чистым контекстом, а не резюме марафона (резюме проигрывает весь контекст заново —
+   это удваивает стоимость).
+
+Урок 001-md-articles-blog (2026-08-31): монолитный запуск backend-dev на весь бэкенд
+(~8 модулей + миграция) обошёлся в ~25 млн токенов, при этом qa и adversary уложились
+дёшево — проблема была только в монолитном код-писателе.
 
 Как правильно запускать тестера (qa) — см. раздел «Экономия токенов» в
 `.qwen/agents/qa.md`: короткий сфокусированный прогон, пачки curl-проверок, сервер

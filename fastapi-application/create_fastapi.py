@@ -35,4 +35,8 @@ def create_app(custom_docs_url: bool = False) -> FastAPI:
     if custom_docs_url:
         reg_docs_routes(app)
 
+    from md_articles import register_md_articles
+
+    register_md_articles(app)
+
     return app

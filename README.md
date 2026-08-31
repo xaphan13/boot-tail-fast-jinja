@@ -13,6 +13,10 @@
 2. **Рабочая** (`example_sql/`, `ex_order_product/`, `db_core/`) — асинхронный слой данных
    на SQLAlchemy 2.0 (`AsyncSession`, `asyncpg`/`aiosqlite`) с миграциями Alembic и двумя
    предметными областями: `User`/`Post` (one-to-many) и `Order`/`Product` (many-to-many).
+3. **Блог** (`md_articles/` + `templates/` + `static/`) — серверный рендеринг Jinja2:
+   статьи из YAML-реестра с Markdown-рендером, вход/регистрация/аккаунт (сессии, bcrypt,
+   аватары), управление реестром. Порт flask-blog-1 (исходник `templates_flaskblog/`,
+   только для чтения) — детали в [`docs/11_md_articles.md`](docs/11_md_articles.md).
 
 > Дублирование маршрутов и обработчиков в `api/` **намеренное** — сравнивать файлы
 > построчно и есть учебная цель. Не «рефакторьте» это в общий код.
@@ -29,7 +33,7 @@
 | [tasks/current/REQUIREMENTS.md](tasks/current/REQUIREMENTS.md) | **текущее задание** команды + его рабочие артефакты |
 | [tasks/](tasks/) | архив закрытых заданий: `NNN-<slug>/` — задание, отчёт и все доказательства в одной папке |
 | `.qwen/agents/` | субагенты: frontend-dev, backend-dev, qa, adversary |
-| [docs/](docs/) | подробная документация по проекту (10 файлов, рус.) |
+| [docs/](docs/) | подробная документация по проекту (11 файлов, рус.) |
 
 Схема работы: пользователь кладёт задание в `tasks/current/REQUIREMENTS.md` и запускает
 Qwen Code в корне проекта. Главная сессия (glm-5.3 или gpt-5.6-sol — с какой запущен
@@ -60,16 +64,20 @@ disposition adversary, участники), а в свежую заглушку 
 
 ## Возможности
 
-- 25 маршрутов: 21 API-эндпоинт плюс служебные `/docs`, `/redoc`, `/openapi.json`,
-  `/docs/oauth2-redirect` (кастомный Swagger/ReDoc на CDN через `utils/docs.py`).
+- 41 route-объект: 25 старых (21 API-эндпоинт плюс служебные `/docs`, `/redoc`,
+  `/openapi.json`, `/docs/oauth2-redirect` — кастомный Swagger/ReDoc на CDN через
+  `utils/docs.py`) + 15 объектов блога + mount `/static`.
 - Демонстрация 9 способов `Depends`: функции, классы с `__call__`, метод-генератор с
   teardown, фабрики зависимостей, вложенные зависимости.
 - Один эндпоинт `/my_items/{item_id}` в четырёх стилях: `Path()/Query()/Header()/Cookie()`
   как default-значения, то же через `Annotated`, параметры в классах, параметры в функциях.
 - Async-слой данных: `AsyncDbManager` + DI-алиас `CurrentSession`, SQLite и PostgreSQL
   через один `APP__DB__URL`, `PRAGMA foreign_keys=ON` для SQLite.
-- Миграции Alembic (2 ревизии: users/posts, orders/products/association) с асинхронным
-  runner'ом.
+- Миграции Alembic (3 ревизии: users/posts, orders/products/association,
+  blog_user/blog_post) с асинхронным runner'ом.
+- Блог `md_articles/`: Jinja2-шаблоны (19 файлов), сессии (14 дней), bcrypt, CSRF,
+  HTML-страницы ошибок 403/404/500, Markdown-рендер статей, аватары с Pillow-миниатюрой
+  125×125.
 - Своя подсистема логирования `ConfigLogger` на `logging.config.dictConfig` (файл+stdout).
 - gunicorn + UvicornWorker для multi-worker запуска; nginx с TLS — в Docker-стеке.
 
@@ -85,6 +93,7 @@ disposition adversary, участники), а в свежую заглушку 
 | Миграции | Alembic (асинхронный env.py) |
 | ASGI-сервер | uvicorn (dev), gunicorn + UvicornWorker (multi-worker) |
 | Сериализация | orjson |
+| Шаблоны блога | Jinja2 (Jinja2Templates), статика — StaticFiles на `/static` |
 | Линтеры | ruff + black (объявлены в зависимостях) |
 
 ## Быстрый старт (локально)
@@ -151,6 +160,7 @@ adversary — в `tasks/current/ADVERSARIAL_REVIEW.md`, сценарии и сы
 | `APP__DB__ECHO` | нет | `0` |
 | `APP__RUN__HOST` / `APP__RUN__PORT` | нет | `0.0.0.0` / `8000` |
 | `APP__GUNICORN__WORKERS` | нет | `1` |
+| `APP__WEB__SECRET_KEY` | нет | dev-значение (подпись сессий блога) |
 
 Env-файлы лежат в `fastapi-application/` и **закоммичены** (`one.env`, `two.env`) — это
 учебный проект без секретов; `.env` (если создаёте) тоже в каталоге приложения и имеет
@@ -158,7 +168,7 @@ Env-файлы лежат в `fastapi-application/` и **закоммичены*
 
 ## Маршруты
 
-25 правил всего (проверка: `cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"` → `25`).
+41 route-объект всего (проверка: `cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"` → `41`; 25 старых + 15 объектов блога: 11 имён, где пары GET/POST и `/`+`/home` дают по отдельному объекту + 1 mount `/static`).
 
 | Методы | Маршрут | Назначение |
 |---|---|---|
@@ -168,6 +178,13 @@ Env-файлы лежат в `fastapi-application/` и **закоммичены*
 | GET | `/users/get_all_users`, POST `/users/create_user` | домен User/Post (CRUD-слой) |
 | POST | `/orders/add_order`, `/orders/insert_order` | запись Order (ORM- и Core-путь) |
 | GET | `/orders/get_order_filter_by`, `/get_order_where`, `/get_all_orders`, `/get_all_join` | чтение Order (фильтры, сортировка, joinedload) |
+| GET | `/`, `/home` → 307 `/art_home`, `/about` | блог: главная (редирект) и «О сайте» |
+| GET | `/art_home`, `/art/{author}/{art_id}` | блог: список статей, статья (Markdown → HTML) |
+| GET/POST | `/register`, `/login` | блог: регистрация и вход (CSRF, bcrypt) |
+| GET | `/logout` | блог: выход |
+| GET/POST | `/account` | блог: аккаунт, аватар (авторизация + CSRF) |
+| GET | `/art_manage`; POST `/art_manage/add_all`, `/art_manage/meta` | блог: управление реестром статей (авторизация + CSRF) |
+| GET | `/static/*` | статика блога (StaticFiles) |
 
 ## Модель данных
 
@@ -176,11 +193,14 @@ User(id, firstname, surname, nickname UNIQUE, password) -> posts
 Post(id, title, body, created_at, user_id FK -> users.id CASCADE)
 Order(id, promo, count_total) <-> OrderProductAssociation(order_id, product_id, count, unit_price)
 Product(id, promo, title, description, price)
+BlogUser(id, username UNIQUE(20), email UNIQUE(120), image_file, password(60)) -> posts
+BlogPost(id, title(100), date_posted, content, user_id FK -> blog_user.id)
 ```
 
 `__tablename__` генерируется автоматически из имени класса (`CamelCase` → `snake_case`);
-`OrderProductAssociation` переопределяет его вручную. Миграции: 2 ревизии Alembic в
-`fastapi-application/alembic/versions/`.
+`OrderProductAssociation` переопределяет его вручную. Миграции: 3 ревизии Alembic в
+`fastapi-application/alembic/versions/`. Реестр статей блога — `md_articles/articles.yaml`
+(контент-статьи `.md` пользователь кладёт в `templates/content_art/`).
 
 ## Запуск в Docker
 
@@ -217,6 +237,7 @@ docker compose -f nginx_pg_admin.yml up -d
 | [`docs/08_ideas_di_api.md`](docs/08_ideas_di_api.md) | идеи развития: DI и API-слой |
 | [`docs/09_ideas_data_layer.md`](docs/09_ideas_data_layer.md) | идеи развития: слой данных |
 | [`docs/10_ideas_testing_infra.md`](docs/10_ideas_testing_infra.md) | идеи развития: тесты, конфигурация, инфраструктура |
+| [`docs/11_md_articles.md`](docs/11_md_articles.md) | блог md_articles: архитектура, маршруты, отличия от Flask-версии |
 
 ## Индекс кодовой базы
 
@@ -230,8 +251,8 @@ docker compose -f nginx_pg_admin.yml up -d
 
 ```bash
 uv run ruff check .                                                        # линтер (ruff в зависимостях)
-cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"   # 25
-cd fastapi-application && ../.venv/bin/uvicorn main:main_app --port 8000    # затем curl /docs, /users/get_all_users
+cd fastapi-application && ../.venv/bin/python -c "from main import main_app; print(len(main_app.routes))"   # 41
+cd fastapi-application && ../.venv/bin/uvicorn main:main_app --port 8000    # затем curl /docs, /users/get_all_users, /art_home
 ```
 
 Тестов нет — изменения проверяются запуском приложения и curl-запросами. Подробные

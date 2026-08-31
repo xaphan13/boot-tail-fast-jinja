@@ -43,6 +43,10 @@ class RunConfig(BaseModel):
     port: int = 8000
 
 
+class WebConfig(BaseModel):
+    secret_key: str = "dev-insecure-secret-key-change-me"
+
+
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
     dep_examples: str = "/dep_examples"
@@ -102,6 +106,7 @@ class Settings(BaseSettings):
 
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
+    web: WebConfig = WebConfig()
 
     db: DatabaseConfig
 

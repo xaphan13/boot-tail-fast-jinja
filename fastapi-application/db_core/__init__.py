@@ -5,6 +5,8 @@ __all__ = (
     "Order",
     "Product",
     "OrderProductAssociation",
+    "BlogUser",
+    "BlogPost",
 )
 
 from db_core.model_base import Base
@@ -18,4 +20,9 @@ from ex_order_product.model_order_product import (
     Order,
     Product,
     OrderProductAssociation,
+)
+
+from md_articles.models import (
+    BlogUser,
+    BlogPost,
 )
