@@ -82,6 +82,7 @@ def _register_error_handlers(app: FastAPI) -> None:
             return _render_error(request, "errors/500.html", status_code)
         # Для прочих HTTP-исключений возвращаем стандартный ответ FastAPI
         from fastapi.exception_handlers import http_exception_handler as default_handler
+
         return await default_handler(request, exc)
 
     @app.exception_handler(403)
