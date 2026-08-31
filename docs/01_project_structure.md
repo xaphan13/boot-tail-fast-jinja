@@ -228,11 +228,11 @@ my-fastapi-one/
 
 | Файл | Назначение |
 |---|---|
-| `QWEN.md` | контекст проекта + инструкции оркестратора (главная сессия: glm-5.3 / gpt-5.6-sol — с какой запущен харнесс, та и оркестратор) |
+| `QWEN.md` | контекст проекта + инструкции оркестратора (главная сессия; оркестратор — модель, с которой запущен харнесс) |
 | `AGENTS.md` | контекст проекта + правила команды, таблица «Зоны и проверки», процесс дефектов |
-| `tasks/current/REQUIREMENTS.md` | **текущее задание** команды; рядом с ним создаются рабочие артефакты (`DEFECTS.md`, `ADVERSARIAL_REVIEW.md`, `e2e/`, `screenshots/`) |
+| `tasks/current/REQUIREMENTS.md` | **текущее задание** команды; рядом с ним создаются рабочие артефакты (`DEFECTS.md`, `ADVERSARIAL_REVIEW.md`, `e2e/`, `screenshots/`, `dev/`) |
 | `tasks/NNN-<slug>/` | архив закрытых заданий: задание, отчёт о выполнении и все доказательства в одной папке |
-| `.qwen/agents/` | субагенты: `frontend-dev`, `backend-dev` (зона — Python-модули `fastapi-application/`), `qa`, `adversary` |
+| `.qwen/agents/` | субагенты: `spec-writer`, `frontend-dev`, `backend-dev` (зона — Python-модули `fastapi-application/`), `qa`, `adversary`; модели ролей — только в frontmatter `model:` этих файлов |
 
 Цикл: пользователь кладёт задание в `tasks/current/REQUIREMENTS.md` → оркестратор
 планирует и делегирует → разработчики правят → qa проверяет запуском и curl-сценариями
