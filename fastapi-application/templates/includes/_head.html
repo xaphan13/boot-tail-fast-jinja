@@ -4,13 +4,15 @@
   <meta name="description" content="Сайт статей о программировании: разборы кода, обзоры и технические заметки на русском.">
 
   {# Крошечный инлайн-скрипт восстановления темы: ставит data-bs-theme на <html> до
-     загрузки стилей, чтобы избежать вспышки неверной темы. Это единственный
-     допустимый inline-JS в шаблонах. #}
+     загрузки стилей, чтобы избежать вспышки неверной темы. Принимает все 4 значения
+     из VALID в scripts.js (dark, light, midnight, aurora); невалидное значение
+     игнорируется — останется дефолтный dark. Это единственный допустимый
+     inline-JS в шаблонах. #}
   <script>
     (function() {
       try {
         var t = localStorage.getItem('theme');
-        if (t === 'light' || t === 'dark') {
+        if (t === 'light' || t === 'dark' || t === 'midnight' || t === 'aurora') {
           document.documentElement.setAttribute('data-bs-theme', t);
         }
       } catch (e) {}

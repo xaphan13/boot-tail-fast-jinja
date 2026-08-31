@@ -1,10 +1,10 @@
 /* Скрипты сайта. Без глобальных функций и inline-обработчиков:
-   - переключатель темы на addEventListener;
+   - селектор темы сайта на addEventListener (4 темы, мгновенное применение);
    - селектор тёмной темы подсветки hljs (15 вариантов), хранится в localStorage;
    - hljs.highlightAll() только при наличии <pre><code>;
    - синхронизация активной таблицы стилей hljs с темой сайта и выбором пользователя.
    Тема сайта восстанавливается инлайн-скриптом в <head> до загрузки стилей,
-   здесь мы только реагируем на клики и поддерживаем синхронизацию.
+   здесь мы только реагируем на смену селектора и поддерживаем синхронизацию.
    Принцип: активная hljs-таблица переключается ДО вызова highlightAll(), поэтому
    классы .hljs на токенах появляются уже после синхронизации — без вспышки цвета. */
 
@@ -12,11 +12,14 @@
   'use strict';
 
   // === Тема сайта ============================================================
-  // Значения: 'dark' | 'light'. Хранятся в localStorage['theme'] — формат ключа
-  // и значений сохранён, чтобы у уже приходивших посетителей выбор не сбрасывался.
+  // Значения: 'dark' | 'light' | 'midnight' | 'aurora'. Хранятся в
+  // localStorage['theme'] — формат ключа сохранён, старые значения dark/light
+  // у вернувшихся посетителей продолжают работать. Невалидное значение
+  // откатывается к дефолту 'dark'.
 
   var STORAGE_KEY = 'theme';
-  var VALID = ['dark', 'light'];
+  var VALID = ['dark', 'light', 'midnight', 'aurora'];
+  var DEFAULT_THEME = 'dark';
 
   // === Тема подсветки кода ===================================================
   // Список тёмных тем жёстко задан: id должен совпадать с id подключённых в <head>
@@ -47,9 +50,9 @@
   function readTheme() {
     try {
       var t = localStorage.getItem(STORAGE_KEY);
-      return VALID.indexOf(t) >= 0 ? t : 'dark';
+      return VALID.indexOf(t) >= 0 ? t : DEFAULT_THEME;
     } catch (e) {
-      return 'dark';
+      return DEFAULT_THEME;
     }
   }
 
@@ -96,18 +99,31 @@
 
   // === Подписки на события ===================================================
 
-  function onThemeToggleClick(e) {
-    e.preventDefault();
-    var current = document.documentElement.getAttribute('data-bs-theme') || 'dark';
-    var next = current === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    writeTheme(next);
+  // Селектор темы сайта. Применяется мгновенно через data-bs-theme на <html>,
+  // без перезагрузки страницы; выбор сохраняется в localStorage['theme'].
+  function onThemeSelectChange(e) {
+    var value = e.target.value;
+    if (VALID.indexOf(value) < 0) value = DEFAULT_THEME;
+    applyTheme(value);
+    writeTheme(value);
   }
 
-  function initThemeToggle() {
-    var btn = document.getElementById('theme-toggle');
-    if (!btn) return;
-    btn.addEventListener('click', onThemeToggleClick);
+  function initThemeSelect() {
+    var sel = document.getElementById('theme-select');
+    if (!sel) return;
+    // Защита от рассинхрона: option-ы, которых нет в VALID, удаляем —
+    // value из HTML не должно «протекать» в настройки.
+    var options = sel.querySelectorAll('option');
+    for (var i = 0; i < options.length; i++) {
+      if (VALID.indexOf(options[i].value) < 0) {
+        options[i].parentNode.removeChild(options[i]);
+      }
+    }
+    // Текущее значение берём с <html>: инлайн-скрипт в <head> уже восстановил
+    // тему из localStorage до загрузки стилей.
+    var current = document.documentElement.getAttribute('data-bs-theme');
+    sel.value = VALID.indexOf(current) >= 0 ? current : DEFAULT_THEME;
+    sel.addEventListener('change', onThemeSelectChange);
   }
 
   // Селектор тёмной темы hljs. Применяется мгновенно, если сайт в тёмной теме;
@@ -160,7 +176,7 @@
     // синхронизируем hljs-таблицу до первого вызова highlightAll().
     var t = document.documentElement.getAttribute('data-bs-theme') || readTheme();
     applyTheme(t);
-    initThemeToggle();
+    initThemeSelect();
     initHljsThemeSelect();
     highlightAll();
   }

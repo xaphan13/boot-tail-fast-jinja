@@ -324,3 +324,193 @@ main {
     color: #fff !important;
     background-color: #ff8c42 !important;
 }
+
+/* === Тема «Полночь» (midnight) =============================================
+   Глубокий сине-фиолетовый. Bootstrap сам не применяет тёмные переменные к
+   кастомному значению атрибута, поэтому задаём весь набор --bs-* и --art-*. */
+
+[data-bs-theme="midnight"] {
+    --bs-body-bg: #0f0d1c;
+    --bs-body-color: #dcd8f0;
+    --bs-secondary-color: #a49cc8;
+    --bs-secondary-bg: #1a1730;
+    --bs-tertiary-bg: #151228;
+    --bs-border-color: #2e2a4d;
+    --bs-link-color: #a78bfa;
+    --bs-link-hover-color: #c4b5fd;
+    --bs-emphasis-color: #f3f1ff;
+
+    --art-link: #a78bfa;
+    --art-link-hover: #c4b5fd;
+    --art-heading: #e8e5f8;
+    --art-h1: #f0abfc;
+    --art-h2: #a78bfa;
+    --art-h2-border: #7c5cd6;
+    --art-h3: #c4b5fd;
+    --art-body-color: #dcd8f0;
+    --art-text-muted: #9a92c0;
+    --art-card-bg: #1a1730;
+    --art-border: #2e2a4d;
+    --art-header-bg: #1a1730;
+    --art-header-link: #cfc9ec;
+    --art-header-link-hover: #ffffff;
+    --art-footer-bg: #14112a;
+    --art-footer-color: #a49cc8;
+    --art-code-bg: #221e3f;
+    --art-code-color: #d8b4fe;
+    --art-focus-ring: rgba(167, 139, 250, 0.35);
+    --art-h2-rule: #7c5cd6;
+}
+
+/* === Тема «Северное сияние» (aurora) =======================================
+   Тёмно-изумрудная с холодным бирюзовым акцентом. */
+
+[data-bs-theme="aurora"] {
+    --bs-body-bg: #0a1412;
+    --bs-body-color: #d4e4dd;
+    --bs-secondary-color: #94b8a8;
+    --bs-secondary-bg: #122019;
+    --bs-tertiary-bg: #0f1c15;
+    --bs-border-color: #1f3a2e;
+    --bs-link-color: #34d399;
+    --bs-link-hover-color: #6ee7b7;
+    --bs-emphasis-color: #ecfdf5;
+
+    --art-link: #34d399;
+    --art-link-hover: #6ee7b7;
+    --art-heading: #dcf0e6;
+    --art-h1: #5eead4;
+    --art-h2: #34d399;
+    --art-h2-border: #0f9b6c;
+    --art-h3: #6ee7b7;
+    --art-body-color: #d4e4dd;
+    --art-text-muted: #8fb3a3;
+    --art-card-bg: #122019;
+    --art-border: #1f3a2e;
+    --art-header-bg: #0f1c15;
+    --art-header-link: #bfe0d0;
+    --art-header-link-hover: #ffffff;
+    --art-footer-bg: #0d1a12;
+    --art-footer-color: #94b8a8;
+    --art-code-bg: #14261d;
+    --art-code-color: #7dd3fc;
+    --art-focus-ring: rgba(52, 211, 153, 0.35);
+    --art-h2-rule: #0f9b6c;
+}
+
+/* === Современный дизайн — ТОЛЬКО в новых темах =============================
+   Скругления, градиентная шапка, мягкие тени, акцентный сайдбар.
+   Групповой селектор: правила не действуют в dark/light. */
+
+[data-bs-theme="midnight"],
+[data-bs-theme="aurora"] {
+    color-scheme: dark;
+}
+
+/* Градиентная шапка и акцентные ссылки/бренд */
+[data-bs-theme="midnight"] .backcolor-header {
+    background-image: linear-gradient(135deg, #1e1a3c 0%, #2c2461 55%, #4c1d95 100%);
+}
+
+[data-bs-theme="aurora"] .backcolor-header {
+    background-image: linear-gradient(135deg, #0f2a1f 0%, #114b38 55%, #0e7490 100%);
+}
+
+[data-bs-theme="midnight"] .backcolor-header .navbar-brand,
+[data-bs-theme="aurora"] .backcolor-header .navbar-brand {
+    background-image: linear-gradient(90deg, var(--art-link), var(--art-h1));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+[data-bs-theme="midnight"] .backcolor-header .navbar-nav .nav-link:hover,
+[data-bs-theme="midnight"] .backcolor-header .navbar-nav .nav-link:focus-visible,
+[data-bs-theme="aurora"] .backcolor-header .navbar-nav .nav-link:hover,
+[data-bs-theme="aurora"] .backcolor-header .navbar-nav .nav-link:focus-visible {
+    color: var(--art-link-hover);
+}
+
+/* Скругления и мягкие тени карточек/секций */
+[data-bs-theme="midnight"] .content-section,
+[data-bs-theme="midnight"] .art-card,
+[data-bs-theme="aurora"] .content-section,
+[data-bs-theme="aurora"] .art-card {
+    border-radius: 1rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+}
+
+[data-bs-theme="midnight"] .art-card:hover,
+[data-bs-theme="midnight"] .art-card:focus-visible,
+[data-bs-theme="aurora"] .art-card:hover,
+[data-bs-theme="aurora"] .art-card:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Скруглённые кнопки и поля */
+[data-bs-theme="midnight"] .btn,
+[data-bs-theme="aurora"] .btn {
+    border-radius: 0.75rem;
+    transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+[data-bs-theme="midnight"] .btn:focus-visible,
+[data-bs-theme="aurora"] .btn:focus-visible {
+    box-shadow: 0 0 0 0.2rem var(--art-focus-ring);
+}
+
+[data-bs-theme="midnight"] .form-control,
+[data-bs-theme="midnight"] .form-select,
+[data-bs-theme="midnight"] textarea.form-control,
+[data-bs-theme="aurora"] .form-control,
+[data-bs-theme="aurora"] .form-select,
+[data-bs-theme="aurora"] textarea.form-control {
+    border-radius: 0.75rem;
+}
+
+[data-bs-theme="midnight"] .form-control:focus,
+[data-bs-theme="midnight"] .form-select:focus,
+[data-bs-theme="aurora"] .form-control:focus,
+[data-bs-theme="aurora"] .form-select:focus {
+    border-color: var(--art-link);
+    box-shadow: 0 0 0 0.2rem var(--art-focus-ring);
+}
+
+/* Скруглённые блоки кода */
+[data-bs-theme="midnight"] pre,
+[data-bs-theme="midnight"] .hljs,
+[data-bs-theme="aurora"] pre,
+[data-bs-theme="aurora"] .hljs {
+    border-radius: 0.75rem;
+}
+
+/* Скруглённый аватар в аккаунте */
+[data-bs-theme="midnight"] .account-img,
+[data-bs-theme="aurora"] .account-img {
+    border-radius: 1rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Акцентные ссылки сайдбара: перекрываем фиксированный оранжевый
+   внутри новых тем (специфичность выше базового правила с !important). */
+[data-bs-theme="midnight"] .sidebar .nav-link,
+[data-bs-theme="aurora"] .sidebar .nav-link {
+    color: var(--art-link) !important;
+}
+
+[data-bs-theme="midnight"] .sidebar .nav-link:hover,
+[data-bs-theme="midnight"] .sidebar .nav-link:focus-visible,
+[data-bs-theme="aurora"] .sidebar .nav-link:hover,
+[data-bs-theme="aurora"] .sidebar .nav-link:focus-visible {
+    color: var(--art-link-hover) !important;
+}
+
+[data-bs-theme="midnight"] .sidebar .text-bg-secondary,
+[data-bs-theme="midnight"] .sidebar .text-bg-info,
+[data-bs-theme="aurora"] .sidebar .text-bg-secondary,
+[data-bs-theme="aurora"] .sidebar .text-bg-info {
+    color: var(--bs-body-bg) !important;
+    background-color: var(--art-link) !important;
+}

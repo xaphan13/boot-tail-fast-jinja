@@ -26,14 +26,14 @@
           <li class="nav-item"><a class="nav-link" href="{{ url_for('users.account') }}">Аккаунт</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('users.logout') }}">Выход</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">О сайте</a></li>
-          <li class="nav-item"><a class="nav-link theme-toggle" id="theme-toggle" href="#">Тема</a></li>
+          {% include "includes/_theme_select.html" %}
           {% include "includes/_hljs_theme_select.html" %}
         {% else %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('art_main.art_home') }}">Статьи</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('users.login') }}">Вход</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('users.register') }}">Регистрация</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">О сайте</a></li>
-          <li class="nav-item"><a class="nav-link theme-toggle" id="theme-toggle" href="#">Тема</a></li>
+          {% include "includes/_theme_select.html" %}
           {% include "includes/_hljs_theme_select.html" %}
         {% endif %}
       </ul>
