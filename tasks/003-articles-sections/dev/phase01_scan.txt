@@ -1,0 +1,4 @@
+files: 80
+first: AI инструменты/aion-zcode-1.md
+section: AI инструменты
+sections: ['AI инструменты', 'Fast API', 'Guide FastAPI', 'Guide MCP Python', 'Guide my fastApi', 'Jinja Templates', 'Pydantic Python', 'Python', 'Rust', 'Sql Alchemy']

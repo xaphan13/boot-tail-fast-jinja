@@ -1,0 +1,97 @@
+===== inspect section page =====
+20474 /tmp/py_section.html
+      3 href="http://127.0.0.1:8000/art_home"
+      2 href="http://127.0.0.1:8000/register"
+      2 href="http://127.0.0.1:8000/login"
+      2 href="http://127.0.0.1:8000/about"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/vs.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/vs2015.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/tokyo-night-dark.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/stackoverflow-dark.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/shades-of-purple.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/paraiso-dark.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/obsidian.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/nord.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/night-owl.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/monokai-sublime.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/monokai.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/ir-black.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/gradient-dark.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/github-dark.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/github-dark-dimmed.min.css"
+      1 href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.12.0/build/styles/atom-one-dark.min.css"
+      1 href="http://127.0.0.1:8000/static/art_css/base.css"
+      1 href="http://127.0.0.1:8000/home"
+      1 href="http://127.0.0.1:8000/art_section/Sql Alchemy"
+      1 href="http://127.0.0.1:8000/art_section/Rust"
+      1 href="http://127.0.0.1:8000/art_section/Python"
+      1 href="http://127.0.0.1:8000/art_section/Pydantic Python"
+      1 href="http://127.0.0.1:8000/art_section/Jinja Templates"
+      1 href="http://127.0.0.1:8000/art_section/Guide my fastApi"
+      1 href="http://127.0.0.1:8000/art_section/Guide MCP Python"
+      1 href="http://127.0.0.1:8000/art_section/Guide FastAPI"
+Разделы count: 1
+<h1 class="text-2xl font-bold text-heading mb-6">Раздел: Python</h1>
+--- lines mentioning art/Раздел ---
+210:  <p class="mb-2 text-center text-[0.65rem] font-semibold uppercase tracking-wider text-muted">Разделы</p>
+213:    <li><a href="http://127.0.0.1:8000/art_section/AI инструменты" class="side-link">AI инструменты</a></li>
+215:    <li><a href="http://127.0.0.1:8000/art_section/Fast API" class="side-link">Fast API</a></li>
+217:    <li><a href="http://127.0.0.1:8000/art_section/Guide FastAPI" class="side-link">Guide FastAPI</a></li>
+219:    <li><a href="http://127.0.0.1:8000/art_section/Guide MCP Python" class="side-link">Guide MCP Python</a></li>
+221:    <li><a href="http://127.0.0.1:8000/art_section/Guide my fastApi" class="side-link">Guide my fastApi</a></li>
+223:    <li><a href="http://127.0.0.1:8000/art_section/Jinja Templates" class="side-link">Jinja Templates</a></li>
+225:    <li><a href="http://127.0.0.1:8000/art_section/Pydantic Python" class="side-link">Pydantic Python</a></li>
+227:    <li><a href="http://127.0.0.1:8000/art_section/Python" class="side-link">Python</a></li>
+229:    <li><a href="http://127.0.0.1:8000/art_section/Rust" class="side-link">Rust</a></li>
+231:    <li><a href="http://127.0.0.1:8000/art_section/Sql Alchemy" class="side-link">Sql Alchemy</a></li>
+246:    <h1 class="text-2xl font-bold text-heading mb-6">Раздел: Python</h1>
+252:         href="http://127.0.0.1:8000/art/NoName/1788346013">
+264:         href="http://127.0.0.1:8000/art/NoName/1788346014">
+276:         href="http://127.0.0.1:8000/art/NoName/1788346015">
+288:         href="http://127.0.0.1:8000/art/NoName/1788346016">
+300:         href="http://127.0.0.1:8000/art/NoName/1788346017">
+312:         href="http://127.0.0.1:8000/art/NoName/1788346018">
+324:         href="http://127.0.0.1:8000/art/NoName/1788346019">
+336:         href="http://127.0.0.1:8000/art/NoName/1788346020">
+348:         href="http://127.0.0.1:8000/art/NoName/1788346021">
+360:         href="http://127.0.0.1:8000/art/NoName/1788346022">
+===== numeric/non-numeric missing art =====
+/art/NoName/nonexistent            -> 422
+/art/NoName/999999999999           -> 404
+/art/NoName/0                      -> 404
+/art/NoName/-1                     -> 404
+numeric-404 has art_section=10 traceback=0
+nonnum-422 content-type-ish sample: {"detail":[{"type":"int_parsing","loc":["path","art_id"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"nonexistent"}]}
+===== auth session =====
+reg csrf len=64 user=adv_1789139086
+register POST -> 307
+login POST -> 307
+account auth -> 200
+manage csrf len=64 prune_form=0 add_all_form=0
+articles_before=80
+add_all#1 -> 307
+flash add_all#1: Нет новых файлов для добавления
+add_all#2 -> 307
+flash add_all#2: Нет новых файлов для добавления
+articles_after_add_all=80
+prune#1 -> 307
+flash prune#1: Записей без файла нет
+prune#2 -> 307
+articles_after_prune=80
+===== csrf abuse (auth) =====
+prune no csrf -> 403
+prune fake csrf -> 403
+add_all fake csrf -> 403
+foreign csrf from other session -> 403
+reused own csrf again -> 307
+===== 403 page html =====
+prune no csrf page -> 403
+403 has art_section=10 traceback=0
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit
+===== logs =====
+no ERROR in last 60 lines

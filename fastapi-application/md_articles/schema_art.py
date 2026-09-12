@@ -162,14 +162,29 @@ def save_articles(articles: list[ArticleLang]) -> None:
 
 
 def scan_content_art() -> list[str]:
-    """Return sorted list of .md/.markdown file names in content_art."""
+    """Recursively return sorted POSIX paths of .md/.markdown in content_art."""
     content_dir = get_path_dir()
     if not content_dir.exists():
         return []
 
     files = [
-        entry.name
-        for entry in content_dir.iterdir()
+        entry.relative_to(content_dir).as_posix()
+        for entry in content_dir.rglob("*")
         if entry.is_file() and entry.suffix.lower() in {".md", ".markdown"}
     ]
     return sorted(files)
+
+
+def get_section(file_name: str) -> str:
+    """Return top-level folder of file_name; "" for files in content_art root."""
+    parts = Path(file_name).parts
+    if len(parts) >= 2:
+        return parts[0]
+    return ""
+
+
+def list_sections() -> list[str]:
+    """Return sorted non-empty section names derived from registered articles."""
+    return sorted(
+        {get_section(art.file_name) for art in get_articles() if get_section(art.file_name)}
+    )

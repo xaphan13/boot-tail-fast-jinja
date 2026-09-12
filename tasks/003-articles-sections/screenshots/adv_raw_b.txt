@@ -1,0 +1,81 @@
+===== source hints =====
+129:async def validate_csrf(request: Request) -> None:
+130-    """Dependency для POST-роутов: проверяет csrf_token формы."""
+131-    form = await request.form()
+132-    session_token = request.session.get("csrf_token")
+133-    form_token = form.get("csrf_token")
+134-    if not session_token or not form_token or form_token != session_token:
+135-        raise HTTPException(status_code=403, detail="CSRF token mismatch")
+136-
+137-
+138-# ==============================================================================
+139-# +++++++++++++++++++++++++++++ login guard ++++++++++++++++++++++++++++++++++++
+140-# ------------------------------------------------------------------------------
+141-async def require_login(request: Request) -> None:
+142-    """Dependency: аноним -> flash + redirect на /login?next=<path>."""
+143-    if getattr(request.state, "current_user", None) is None:
+--- csrf in templates ---
+fastapi-application/templates/login.html:11:        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+fastapi-application/templates/register.html:11:        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+fastapi-application/templates/new_art/art_manage.html:41:                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+fastapi-application/templates/new_art/art_manage.html:92:        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+fastapi-application/templates/new_art/art_manage.html:101:              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+fastapi-application/templates/new_art/art_manage.html:139:        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+--- is_complete def ---
+249:def _is_complete(art: ArticleLang) -> bool:
+250-    return bool(art.author.strip() and art.lang.strip() and art.title.strip())
+251-
+252-
+253-def _allocate_art_id(existing_ids: set[int]) -> int:
+254-    new_id = int(time.time())
+255-    while new_id in existing_ids:
+256-        new_id += 1
+257-    return new_id
+--- schema_art helpers ---
+80:def get_articles() -> list[ArticleLang]:
+164:def scan_content_art() -> list[str]:
+178:def get_section(file_name: str) -> str:
+186:def list_sections() -> list[str]:
+===== probe3 count =====
+registered_total: 80
+scan_total: 80
+sections: ['AI инструменты', 'Fast API', 'Guide FastAPI', 'Guide MCP Python', 'Guide my fastApi', 'Jinja Templates', 'Pydantic Python', 'Python', 'Rust', 'Sql Alchemy']
+python_registered: 10
+python_complete: 10
+python_first_files: ['Python/01_project_structure.md', 'Python/02_architecture.md', 'Python/03_execution_flow.md', 'Python/04_code_quality.md', 'Python/05_optimization_roadmap.md']
+page_article_links: 0
+page_leak_aion: 0
+page_h1: Раздел: Python
+page_section_links: 0
+===== probe4 unicode =====
+NFC=AI%20%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B
+NFD=AI%20%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B
+AI%20%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8 -> 200
+AI%20%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8 -> 200
+AI+%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B  -> 404
+--- dirs on disk (top level) ---
+disk: AI инструменты
+disk: Fast API
+disk: Guide FastAPI
+disk: Guide MCP Python
+disk: Guide my fastApi
+disk: Jinja Templates
+disk: Pydantic Python
+disk: Python
+disk: Rust
+disk: Sql Alchemy
+--- sidebar section links on /about (unique) ---
+===== probe8 reflect =====
+%3Cscript%3Ealert(1)%3C%2Fscript%3E                -> 404 reflect_alert=0 reflect_b=0
+%22%3E%3Cb%3E                                      -> 404 reflect_alert=0 reflect_b=0
+Python%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E    -> 404 reflect_alert=0 reflect_b=0
+===== probe9 logs =====
+18:ERROR: Unhandled exception: (sqlite3.OperationalError) no such table: blog_user
+25:ERROR: Unhandled exception: (sqlite3.OperationalError) no such table: blog_user
+32:ERROR: Unhandled exception: (sqlite3.OperationalError) no such table: blog_user
+--- last log lines ---
+INFO: 'about'
+/* 2026-09-11 18:03:20,468 - schema_art.get_articles(103) - [MainThread] - [134695164962624] */  
+INFO: articles.yaml reloaded: 80 entries
+/* 2026-09-11 18:03:20,803 - routes_main.about(31) - [MainThread] - [125152010544960] */  
+INFO: 'about'

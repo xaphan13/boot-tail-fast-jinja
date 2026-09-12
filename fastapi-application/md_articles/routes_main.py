@@ -20,7 +20,7 @@ router_main = APIRouter(
 @router_main.get("/", name="main.home")
 @router_main.get("/home", name="main.home")
 async def home():
-    return RedirectResponse("/art_home", status_code=307)
+    return RedirectResponse("/art_home", status_code=303)
 
 
 # ==============================================================================

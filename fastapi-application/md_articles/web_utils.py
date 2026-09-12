@@ -17,6 +17,7 @@ from base_dir_path import BASE_DIR
 from config_log import logF
 from db_core.db_async import CurrentSession
 from md_articles.models import BlogUser
+from md_articles.schema_art import list_sections
 
 
 # ==============================================================================
@@ -34,6 +35,7 @@ def _inject_globals(request: Request):
         "current_user": _get_current_user_from_request(request),
         "csrf_token": _ensure_csrf_token(request),
         "get_flashed_messages": _FlashMessagesHelper(request),
+        "sidebar_sections": list_sections(),
     }
 
 
@@ -141,9 +143,9 @@ async def require_login(request: Request) -> None:
     if getattr(request.state, "current_user", None) is None:
         flash(request, "Нужно авторизоваться или зарегистрироваться", "info")
         next_url = quote(request.url.path, safe="/")
-        response = RedirectResponse(f"/login?next={next_url}", status_code=307)
+        response = RedirectResponse(f"/login?next={next_url}", status_code=303)
         request.session.setdefault("_flash_dummy", "")
-        raise HTTPException(status_code=307, headers={"location": response.headers["location"]})
+        raise HTTPException(status_code=303, headers={"location": response.headers["location"]})
 
 
 # ==============================================================================

@@ -135,6 +135,11 @@
     <div class="h-1 w-16 rounded-full bg-[image:var(--art-grad)] mt-3 mb-5"></div>
 
     {% if missing_entries %}
+      <form method="POST" action="{{ url_for('art_main.art_manage_prune_missing') }}" class="mb-5">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="btn-grad px-5 py-2 rounded-xl text-sm font-semibold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition">Удалить записи без файла</button>
+      </form>
+
       <ul class="flex flex-col gap-3">
         {% for art in missing_entries %}
           <li class="rounded-xl border border-line p-4 flex justify-between items-center transition hover:border-accent">

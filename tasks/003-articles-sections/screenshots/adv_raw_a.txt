@@ -1,0 +1,34 @@
+===== pgrep =====
+350397 /home/max/0_0_26_new_one/boot-tail-fast-jinja/.venv/bin/python ../.venv/bin/uvicorn main:main_app --host 127.0.0.1 --port 8000
+352299 bash -c cd /home/max/0_0_26_new_one/boot-tail-fast-jinja mkdir -p tasks/current/screenshots OUT=tasks/current/screenshots/adv_raw_a.txt { echo "===== pgrep =====" pgrep -af "uvicorn.*main:main_app" echo "===== art_home hrefs =====" curl -s http://127.0.0.1:8000/art_home | grep -oE 'href="/art/[^"]+"' | head -8 ART=$(curl -s http://127.0.0.1:8000/art_home | grep -oE '/art/NoName/[^"]+' | head -1) echo "ART=[$ART]" echo "===== probe1 route collision =====" for u in /art_section/Python "$ART" /art_section/Python/extra /art_section; do   printf '%-40s -> %s\n' "$u" "$(curl -s -o /dev/null -w '%{http_code}' --path-as-is "http://127.0.0.1:8000$u")" done echo "===== probe2 boundaries =====" LONG=$(printf 'a%.0s' $(seq 1 600)) for u in "/art_section/" "/art_section/%20" "/art_section/Python%20" "/art_section/python" "/art_section/%2e%2e%2f%2e%2e%2fetc%2fpasswd" "/art_section/Python%2Fextra" "/art_section/$LONG"; do   printf '%-52s -> %s\n' "${u:0:52}" "$(curl -s -o /dev/null -w '%{http_code}' --path-as-is "http://127.0.0.1:8000$u")" done echo "===== probe8 injection =====" for u in "/art_section/%3Cscript%3E" "/art_section/%26" "/art_section/%22%3E"; do   B=$(curl -s --path-as-is "http://127.0.0.1:8000$u")   printf '%-30s -> %s script_reflect=%s\n' "$u" "$(curl -s -o /dev/null -w '%{http_code}' --path-as-is "http://127.0.0.1:8000$u")" "$(printf '%s' "$B" | grep -c '<script>')" done echo "===== probe5 sidebar/about/errors =====" echo "about art_section links: $(curl -s http://127.0.0.1:8000/about | grep -c 'art_section')" echo "about href# links: $(curl -s http://127.0.0.1:8000/about | grep -c 'href=\"#\"')" for u in /no-such-page /art/NoName/nonexistent; do   B=$(curl -s "http://127.0.0.1:8000$u")   printf '%-30s -> %s has_art_section=%s traceback=%s\n' "$u" "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000$u")" "$(printf '%s' "$B" | grep -c 'art_section')" "$(printf '%s' "$B" | grep -c 'Traceback')" done echo "===== probe6 methods/csrf =====" echo "GET prune -> $(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/art_manage/prune_missing)" echo "GET add_all -> $(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/art_manage/add_all)" echo "POST prune no cookie/csrf -> $(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8000/art_manage/prune_missing)" echo "POST add_all no cookie/csrf -> $(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8000/art_manage/add_all)" echo "POST prune no cookie + fake csrf -> $(curl -s -o /dev/null -w '%{http_code}' -X POST -d 'csrf_token=fake' http://127.0.0.1:8000/art_manage/prune_missing)" } 2>&1 | tee "$OUT"
+352301 bash -c cd /home/max/0_0_26_new_one/boot-tail-fast-jinja mkdir -p tasks/current/screenshots OUT=tasks/current/screenshots/adv_raw_a.txt { echo "===== pgrep =====" pgrep -af "uvicorn.*main:main_app" echo "===== art_home hrefs =====" curl -s http://127.0.0.1:8000/art_home | grep -oE 'href="/art/[^"]+"' | head -8 ART=$(curl -s http://127.0.0.1:8000/art_home | grep -oE '/art/NoName/[^"]+' | head -1) echo "ART=[$ART]" echo "===== probe1 route collision =====" for u in /art_section/Python "$ART" /art_section/Python/extra /art_section; do   printf '%-40s -> %s\n' "$u" "$(curl -s -o /dev/null -w '%{http_code}' --path-as-is "http://127.0.0.1:8000$u")" done echo "===== probe2 boundaries =====" LONG=$(printf 'a%.0s' $(seq 1 600)) for u in "/art_section/" "/art_section/%20" "/art_section/Python%20" "/art_section/python" "/art_section/%2e%2e%2f%2e%2e%2fetc%2fpasswd" "/art_section/Python%2Fextra" "/art_section/$LONG"; do   printf '%-52s -> %s\n' "${u:0:52}" "$(curl -s -o /dev/null -w '%{http_code}' --path-as-is "http://127.0.0.1:8000$u")" done echo "===== probe8 injection =====" for u in "/art_section/%3Cscript%3E" "/art_section/%26" "/art_section/%22%3E"; do   B=$(curl -s --path-as-is "http://127.0.0.1:8000$u")   printf '%-30s -> %s script_reflect=%s\n' "$u" "$(curl -s -o /dev/null -w '%{http_code}' --path-as-is "http://127.0.0.1:8000$u")" "$(printf '%s' "$B" | grep -c '<script>')" done echo "===== probe5 sidebar/about/errors =====" echo "about art_section links: $(curl -s http://127.0.0.1:8000/about | grep -c 'art_section')" echo "about href# links: $(curl -s http://127.0.0.1:8000/about | grep -c 'href=\"#\"')" for u in /no-such-page /art/NoName/nonexistent; do   B=$(curl -s "http://127.0.0.1:8000$u")   printf '%-30s -> %s has_art_section=%s traceback=%s\n' "$u" "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000$u")" "$(printf '%s' "$B" | grep -c 'art_section')" "$(printf '%s' "$B" | grep -c 'Traceback')" done echo "===== probe6 methods/csrf =====" echo "GET prune -> $(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/art_manage/prune_missing)" echo "GET add_all -> $(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/art_manage/add_all)" echo "POST prune no cookie/csrf -> $(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8000/art_manage/prune_missing)" echo "POST add_all no cookie/csrf -> $(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8000/art_manage/add_all)" echo "POST prune no cookie + fake csrf -> $(curl -s -o /dev/null -w '%{http_code}' -X POST -d 'csrf_token=fake' http://127.0.0.1:8000/art_manage/prune_missing)" } 2>&1 | tee "$OUT"
+===== art_home hrefs =====
+ART=[/art/NoName/1788345978]
+===== probe1 route collision =====
+/art_section/Python                      -> 200
+/art/NoName/1788345978                   -> 200
+/art_section/Python/extra                -> 404
+/art_section                             -> 404
+===== probe2 boundaries =====
+/art_section/                                        -> 404
+/art_section/%20                                     -> 404
+/art_section/Python%20                               -> 404
+/art_section/python                                  -> 404
+/art_section/%2e%2e%2f%2e%2e%2fetc%2fpasswd          -> 404
+/art_section/Python%2Fextra                          -> 404
+/art_section/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> 404
+===== probe8 injection =====
+/art_section/%3Cscript%3E      -> 404 script_reflect=2
+/art_section/%26               -> 404 script_reflect=2
+/art_section/%22%3E            -> 404 script_reflect=2
+===== probe5 sidebar/about/errors =====
+about art_section links: 10
+about href# links: 0
+/no-such-page                  -> 404 has_art_section=10 traceback=0
+/art/NoName/nonexistent        -> 422 has_art_section=0 traceback=0
+===== probe6 methods/csrf =====
+GET prune -> 405
+GET add_all -> 405
+POST prune no cookie/csrf -> 307
+POST add_all no cookie/csrf -> 307
+POST prune no cookie + fake csrf -> 307

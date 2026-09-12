@@ -5,15 +5,10 @@
 <nav class="pt-1 w-full">
   <p class="mb-2 text-center text-[0.65rem] font-semibold uppercase tracking-wider text-muted">Разделы</p>
   <ul class="flex flex-col items-stretch gap-2 w-full">
-    <li><a href="#" class="side-link">Python</a></li>
-    <li><a href="#" class="side-link">FastAPI</a></li>
-    <li><a href="#" class="side-link">SQLAlchemy</a></li>
-    <li><a href="#" class="side-link">PostgreSQL</a></li>
-    <li><a href="#" class="side-link">Docker</a></li>
-    <li><a href="#" class="side-link">Git</a></li>
-    <li><a href="#" class="side-link">Linux</a></li>
-    <li><a href="#" class="side-link">JavaScript</a></li>
-    <li><a href="#" class="side-link">Алгоритмы</a></li>
-    <li><a href="#" class="side-link">DevOps</a></li>
+    {% for section in sidebar_sections %}
+    <li><a href="{{ url_for('art_main.art_section', section=section) }}" class="side-link">{{ section }}</a></li>
+    {% else %}
+    <li class="text-muted text-xs">Разделов нет</li>
+    {% endfor %}
   </ul>
 </nav>

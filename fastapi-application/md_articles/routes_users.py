@@ -164,7 +164,7 @@ async def _email_exists(session: CurrentSession, email: str) -> bool:
 @router_users.get("/register", name="users.register")
 async def register_get(request: Request):
     if getattr(request.state, "current_user", None) is not None:
-        return RedirectResponse("/art_home", status_code=307)
+        return RedirectResponse("/art_home", status_code=303)
     return render_template(
         "register.html",
         {
@@ -187,7 +187,7 @@ async def register_post(
     await validate_csrf(request)
 
     if getattr(request.state, "current_user", None) is not None:
-        return RedirectResponse("/art_home", status_code=307)
+        return RedirectResponse("/art_home", status_code=303)
 
     errors = await _validate_registration(session, username, email, password, confirm_password)
     if errors:
@@ -210,7 +210,7 @@ async def register_post(
     await session.commit()
 
     flash(request, "Your account has been created! You are now able to log in", "success")
-    return RedirectResponse("/login", status_code=307)
+    return RedirectResponse("/login", status_code=303)
 
 
 async def _validate_registration(
@@ -285,7 +285,7 @@ def _build_register_form_context(
 @router_users.get("/login", name="users.login")
 async def login_get(request: Request):
     if getattr(request.state, "current_user", None) is not None:
-        return RedirectResponse("/art_home", status_code=307)
+        return RedirectResponse("/art_home", status_code=303)
     return render_template(
         "login.html",
         {
@@ -307,7 +307,7 @@ async def login_post(
     await validate_csrf(request)
 
     if getattr(request.state, "current_user", None) is not None:
-        return RedirectResponse("/art_home", status_code=307)
+        return RedirectResponse("/art_home", status_code=303)
 
     errors: dict[str, list[str]] = {}
     if not email:
@@ -324,8 +324,8 @@ async def login_post(
         login_user(request, user.id)
         next_page = request.query_params.get("next", "")
         if next_page.startswith("/") and not next_page.startswith("//"):
-            return RedirectResponse(next_page, status_code=307)
-        return RedirectResponse("/art_home", status_code=307)
+            return RedirectResponse(next_page, status_code=303)
+        return RedirectResponse("/art_home", status_code=303)
 
     flash(request, "Login Unsuccessful. Please check email and password", "danger")
     return render_template(
@@ -370,7 +370,7 @@ def _build_login_form_context(
 @router_users.get("/logout", name="users.logout")
 async def logout(request: Request):
     logout_user(request)
-    return RedirectResponse("/art_home", status_code=307)
+    return RedirectResponse("/art_home", status_code=303)
 
 
 # ==============================================================================
@@ -426,7 +426,7 @@ async def account_post(
     await session.commit()
 
     flash(request, "Your account has been updated!", "success")
-    return RedirectResponse("/account", status_code=307)
+    return RedirectResponse("/account", status_code=303)
 
 
 async def _validate_account(
