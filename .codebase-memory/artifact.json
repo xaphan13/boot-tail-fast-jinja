@@ -1,0 +1,11 @@
+{
+    "schema_version": 2,
+    "commit": "dddb5b8b79f2f785cfd9027aec9d822d09aec607",
+    "indexed_at": "2026-09-12T18:55:18Z",
+    "project": "home-max-0_0_26_new_one-boot-tail-fast-jinja",
+    "nodes": 3140,
+    "edges": 4612,
+    "original_size": 9043968,
+    "compressed_size": 1170157,
+    "compression_level": 3
+}
