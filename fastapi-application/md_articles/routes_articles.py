@@ -10,7 +10,14 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
 from config_log import logF
-from md_articles.web_utils import flash, render_template, require_login, validate_csrf
+from md_articles.models import BlogUser
+from md_articles.web_utils import (
+    flash,
+    get_current_user,
+    render_template,
+    require_login,
+    validate_csrf,
+)
 from md_articles.schema_art import (
     ArticleLang,
     get_art,
@@ -36,7 +43,10 @@ router_articles = APIRouter(
 # +++++++++++++++++++++++++++++++ art_home +++++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_articles.get("/art_home", name="art_main.art_home")
-async def art_home(request: Request):
+async def art_home(
+    request: Request,
+    _user=Depends(get_current_user),
+):
     title_list = [
         art.model_dump(exclude={"content"}) for art in get_articles() if _is_complete(art)
     ]
@@ -52,7 +62,11 @@ async def art_home(request: Request):
 # +++++++++++++++++++++++++++++++ art_section ++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_articles.get("/art_section/{section}", name="art_main.art_section")
-async def art_section(request: Request, section: str):
+async def art_section(
+    request: Request,
+    section: str,
+    _user=Depends(get_current_user),
+):
     if section not in list_sections():
         raise HTTPException(status_code=404)
     title_list = [art.model_dump(exclude={"content"}) for art in get_articles() if _is_complete(art) and get_section(art.file_name) == section]
@@ -66,7 +80,12 @@ async def art_section(request: Request, section: str):
 # +++++++++++++++++++++++++++++++ art_author +++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_articles.get("/art/{author}/{art_id}", name="art_main.art_author")
-async def art_author(request: Request, author: str, art_id: int):
+async def art_author(
+    request: Request,
+    author: str,
+    art_id: int,
+    _user=Depends(get_current_user),
+):
     logF.info(f"art_author : '/art/<string:author>/<int:art_id>' = {author} - {art_id}")
 
     art = get_art(art_id)
@@ -93,7 +112,10 @@ async def art_author(request: Request, author: str, art_id: int):
 # +++++++++++++++++++++++++++++++ art_manage +++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_articles.get("/art_manage", name="art_main.art_manage")
-async def art_manage(request: Request, _user=Depends(require_login)):
+async def art_manage(
+    request: Request,
+    _user: BlogUser = Depends(require_login),
+):
     articles = get_articles()
     disk_files = set(scan_content_art())
     registered_files = {art.file_name for art in articles}
@@ -144,7 +166,10 @@ async def art_manage(request: Request, _user=Depends(require_login)):
 # ++++++++++++++++++++++++++++ art_manage_add_all +++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_articles.post("/art_manage/add_all", name="art_main.art_manage_add_all")
-async def art_manage_add_all(request: Request, _user=Depends(require_login)):
+async def art_manage_add_all(
+    request: Request,
+    _user: BlogUser = Depends(require_login),
+):
     await validate_csrf(request)
 
     disk_files = sorted(scan_content_art())
@@ -228,7 +253,10 @@ async def art_manage_add_all(request: Request, _user=Depends(require_login)):
 # ++++++++++++++++++++++++++ art_manage_prune_missing +++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_articles.post("/art_manage/prune_missing", name="art_main.art_manage_prune_missing")
-async def art_manage_prune_missing(request: Request, _user=Depends(require_login)):
+async def art_manage_prune_missing(
+    request: Request,
+    _user: BlogUser = Depends(require_login),
+):
     await validate_csrf(request)
 
     disk_files = set(scan_content_art())
@@ -249,7 +277,7 @@ async def art_manage_prune_missing(request: Request, _user=Depends(require_login
 @router_articles.post("/art_manage/meta", name="art_main.art_manage_meta")
 async def art_manage_meta(
     request: Request,
-    _user=Depends(require_login),
+    _user: BlogUser = Depends(require_login),
     file_name: str = Form(""),
     author: str = Form(""),
     lang: str = Form(""),

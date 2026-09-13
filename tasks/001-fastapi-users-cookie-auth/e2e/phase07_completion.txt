@@ -1,0 +1,185 @@
+=== QA phase 7 completion raw evidence ===
+Date: 2026-09-13
+
+The existing PASS evidence was reused without repeating the completed flows:
+- C1-C3: tasks/current/e2e/phase07_preflight.txt
+- registration/duplicate, login cookie, protected account/art_manage, logout, tampered cookie: tasks/current/e2e/phase07_runtime_auth.txt
+- existing bcrypt user: tasks/current/e2e/phase07_bcrypt_existing_user.txt
+- password policy: tasks/current/e2e/phase07_password_policy.txt
+- account CSRF and regression routes: tasks/current/e2e/phase07_account_csrf_correct.txt and phase07_final_regression.txt
+
+=== required preflight ===
+Command:
+pgrep -af "uvicorn.*main:main_app"
+curl -m 3 http://127.0.0.1:8000/openapi.json
+
+Raw output before starting QA server:
+790546 bash -c ... pgrep -af 'uvicorn.*main:main_app' ...
+curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: В соединении отказано
+HTTP=000
+
+Server command, run from fastapi-application:
+../.venv/bin/uvicorn main:main_app --host 127.0.0.1 --port 8000
+
+Readiness and process output:
+790991 /home/max/0_0_26_new_one/boot-tail-fast-jinja/.venv/bin/python ../.venv/bin/uvicorn main:main_app --host 127.0.0.1 --port 8000
+openapi_http=200
+
+=== register CSRF: missing and wrong token ===
+Commands used:
+GET /register with curl cookie jar; extract hidden csrf_token.
+POST /register form-data without csrf_token.
+POST /register form-data with csrf_token=wrong-phase07-token.
+Database observation command queried count(*) and the target email after each request.
+
+Raw output:
+count=9 target=None
+register_get_status=200 csrf_len=64
+-- missing csrf POST --
+status=403 body={"detail":"CSRF token mismatch"}
+count=9 target=None
+-- wrong csrf POST --
+status=403 body={"detail":"CSRF token mismatch"}
+count=9 target=None
+
+Expected: both invalid CSRF requests return 403 and do not create the target user.
+Actual: exact expected statuses/body; count and target remained unchanged after each request.
+Result: PASS
+
+=== register CSRF: valid token ===
+Command:
+POST /register with the extracted csrf_token and username/email/password/confirm_password form-data.
+
+Raw output:
+-- valid csrf POST --
+status=303 location=/login body_bytes=0
+count=10 target=(10, 'qa7_csrf_1789286570@example.com', 'qa7_csrf_1789286570', 97)
+
+Expected: valid CSRF continues to permit registration and redirects to /login.
+Actual: 303 /login; one target row was created with a non-empty 97-character password hash.
+Result: PASS
+
+=== standard fastapi-users cookie logout ===
+Commands:
+POST /auth/cookie/login with application/x-www-form-urlencoded username/password.
+POST /auth/cookie/logout with the resulting auth cookie.
+GET /account with the cleared cookie jar.
+
+Raw output:
+auth_cookie_name=auth
+login_status=204 body_bytes=0
+set-cookie: <REDACTED>
+POST /auth/cookie/logout status=204 body_bytes=0
+auth cookie clearing header: <REDACTED>
+after_standard_logout_account status=303 location=/login?next=/account body_bytes=22
+
+Expected: standard route/method exists, logout returns success and clears the same cookie; protected SSR route rejects the logged-out client.
+Actual: POST /auth/cookie/logout returned 204 with an HttpOnly cookie-clearing Set-Cookie; /account returned 303 to /login?next=/account.
+Result: PASS
+
+=== expired JWT fail-closed ===
+Local-only token generation command (token was written to a temporary file and never printed/logged):
+(cd fastapi-application && ../.venv/bin/python - ... generate_jwt(..., -60) ...)
+
+Raw output:
+expired_token_generated=yes
+expired /account status=303 location=/login?next=/account body_bytes=22
+expired /auth/users/me status=401 body={"detail":"Unauthorized"}
+
+Expected: an explicitly expired cookie is rejected by protected SSR/API routes without a 500 and without exposing account data.
+Actual: /account redirected to login; /auth/users/me returned 401 Unauthorized; no 500.
+Result: PASS
+
+=== application log checks ===
+Command:
+Run a local Python check from fastapi-application against fastapi-application/log/one_fast.log for traceback, test password, JWT-like values and configured secret. Values were compared without printing the secret or any token.
+
+Raw output:
+log_files=one_fast.log
+log_bytes=667777
+traceback_count=0
+test_password_occurrences=0
+jwt_like_occurrences=0
+secret_occurrences=0
+log_check_rc=0
+
+Expected: no traceback or authentication secret/token/password leakage in application logs.
+Actual: all counts are zero.
+Result: PASS
+
+=== scope and temporary-file cleanup ===
+Command:
+git status --short --untracked-files=all
+Then classify product paths against the exact REQUIREMENTS phase files:
+pyproject.toml; uv.lock; fastapi-application/core/config.py; fastapi-application/core/users.py; fastapi-application/md_articles/models.py; fastapi-application/md_articles/schema_users.py; fastapi-application/db_core/__init__.py; fastapi-application/md_articles/web_utils.py; fastapi-application/md_articles/__init__.py; fastapi-application/md_articles/routes_users.py; fastapi-application/md_articles/routes_main.py; fastapi-application/md_articles/routes_articles.py; fastapi-application/alembic/versions/2026-09-13_00-00--a1c2d3e4f5a6--fastapi_users_blog_user.py; fastapi-application/templates/login.html; fastapi-application/templates/register.html; fastapi-application/templates/layout.html.
+Remove fastapi-application/_tmp_qa7_* and classify again.
+
+Raw git status used for classification:
+ M .codebase-memory/artifact.json
+ M .codebase-memory/graph.db.zst
+ M fastapi-application/core/config.py
+ M fastapi-application/db_core/__init__.py
+ M fastapi-application/md_articles/__init__.py
+ M fastapi-application/md_articles/models.py
+ M fastapi-application/md_articles/routes_articles.py
+ M fastapi-application/md_articles/routes_main.py
+ M fastapi-application/md_articles/routes_users.py
+ M fastapi-application/md_articles/web_utils.py
+ M fastapi-application/templates/login.html
+ M fastapi-application/templates/register.html
+ M pyproject.toml
+ M uv.lock
+?? fastapi-application/alembic/versions/2026-09-13_00-00--a1c2d3e4f5a6--fastapi_users_blog_user.py
+?? fastapi-application/core/users.py
+?? fastapi-application/md_articles/schema_users.py
+?? tasks/current/REQUIREMENTS.md
+?? tasks/current/dev/phase01_progress.md
+?? tasks/current/dev/phase02_progress.md
+?? tasks/current/dev/phase03_progress.md
+?? tasks/current/dev/phase04_progress.md
+?? tasks/current/dev/phase05_progress.md
+?? tasks/current/dev/phase06_progress.md
+?? tasks/current/e2e/phase07_account_csrf_correct.txt
+?? tasks/current/e2e/phase07_bcrypt_existing_user.txt
+?? tasks/current/e2e/phase07_final_regression.txt
+?? tasks/current/e2e/phase07_openapi.txt
+?? tasks/current/e2e/phase07_password_policy.txt
+?? tasks/current/e2e/phase07_preflight.txt
+?? tasks/current/e2e/phase07_regression_scope.txt
+?? tasks/current/e2e/phase07_runtime_auth.txt
+?? tasks/current/e2e/phase07_scope.txt
+
+git_status_raw_end
+requested_product=['fastapi-application/alembic/versions/2026-09-13_00-00--a1c2d3e4f5a6--fastapi_users_blog_user.py', 'fastapi-application/core/config.py', 'fastapi-application/core/users.py', 'fastapi-application/db_core/__init__.py', 'fastapi-application/md_articles/__init__.py', 'fastapi-application/md_articles/models.py', 'fastapi-application/md_articles/routes_articles.py', 'fastapi-application/md_articles/routes_main.py', 'fastapi-application/md_articles/routes_users.py', 'fastapi-application/md_articles/schema_users.py', 'fastapi-application/md_articles/web_utils.py', 'fastapi-application/templates/login.html', 'fastapi-application/templates/register.html', 'pyproject.toml', 'uv.lock']
+unexpected_product=[]
+nonproduct_metadata=['.codebase-memory/artifact.json', '.codebase-memory/graph.db.zst']
+tmp_qa7_after_cleanup=[]
+scope_result=PASS
+
+Expected: every changed product path is one of the REQUIREMENTS phase files; indexing metadata is classified separately; temporary _tmp_qa7_* files are absent.
+Actual: unexpected_product=[] and tmp_qa7_after_cleanup=[].
+Result: PASS
+
+=== server shutdown and port check ===
+Command:
+kill the QA uvicorn PID 790991; then pgrep and curl port probe.
+
+Raw output:
+port_probe_http=000
+curl_port_probe_rc=7
+curl: (7) Failed to connect to 127.0.0.1 port 8000 after 0 ms: В соединении отказано
+
+Final pgrep for uvicorn main:main_app: no matching server process.
+
+Expected: the QA server is stopped and port 8000 is free.
+Actual: connection refused (curl rc=7); no uvicorn process remained.
+Result: PASS
+
+=== note about diagnostic command correction ===
+The first composite run had two helper-only errors: the system `python` command was unavailable, and a log helper was invoked from the repository root, so `core` was not importable. No product check depended on those failed helper calls. The log and cleanup/process checks were rerun with the project `.venv/bin/python` and the required fastapi-application cwd; the corrected raw results above are the final evidence.
+
+=== final result ===
+All phase-7 checks requested in this recovery run: PASS.
+No product defect was observed; DEFECTS.md was not created.
+No ADVERSARIAL_REVIEW.md was created.
+No commit was made.

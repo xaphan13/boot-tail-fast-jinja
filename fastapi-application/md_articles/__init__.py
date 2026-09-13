@@ -3,45 +3,29 @@
 # ------------------ блог на FastAPI + Jinja2 (порт flask-blog-1) ---------------
 # ------------------------------------------------------------------------------
 from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
-from starlette.middleware.sessions import SessionMiddleware
+from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import HTMLResponse
 
 from base_dir_path import BASE_DIR
-from core.config import settings
 from config_log import logF
-
-from md_articles.routes_main import router_main
-from md_articles.routes_users import router_users
-from md_articles.routes_articles import router_articles
-from md_articles.web_utils import (
-    get_current_user,
-    templates,
-)
-from db_core.db_async import db_manager
+from core.config import settings
+from db_core import Base as _DbBase
 
 
 # ==============================================================================
 # ++++++++++++++++++++++++++ current_user middleware +++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
-async def inject_current_user_middleware(request: Request, call_next):
-    """Middleware: загружает current_user для всех HTTP-запросов в блоге."""
-    async with db_manager.session_factory() as session:
-        await get_current_user(request, session)
-        response = await call_next(request)
-    return response
 
 
 # ==============================================================================
 # +++++++++++++++++++++++++++++++ register app +++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 def register_md_articles(app: FastAPI) -> None:
-    """Подключение блога к приложению: сессии, статика, ошибки, роутеры."""
+    """Подключение блога: сессии, auth API, статика, ошибки и роутеры."""
     logF.info("register_md_articles: подключение middleware, static, errors, routers")
-
-    app.middleware("http")(inject_current_user_middleware)
 
     app.add_middleware(
         SessionMiddleware,
@@ -55,8 +39,22 @@ def register_md_articles(app: FastAPI) -> None:
         name="static",
     )
 
-    _register_error_handlers(app)
+    from core.users import auth_backend, fastapi_users
+    from md_articles.routes_articles import router_articles
+    from md_articles.routes_main import router_main
+    from md_articles.routes_users import router_users
+    from md_articles.schema_users import UserRead, UserUpdate
 
+    app.include_router(
+        fastapi_users.get_auth_router(auth_backend),
+        prefix="/auth/cookie",
+        tags=["auth"],
+    )
+    app.include_router(
+        fastapi_users.get_users_router(UserRead, UserUpdate),
+        prefix="/auth/users",
+        tags=["auth users"],
+    )
     app.include_router(router_main)
     app.include_router(router_users)
     app.include_router(router_articles)

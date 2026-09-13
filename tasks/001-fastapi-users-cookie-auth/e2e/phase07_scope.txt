@@ -1,0 +1,104 @@
+=== git status --short --untracked-files=all ===
+ M .codebase-memory/artifact.json
+ M .codebase-memory/graph.db.zst
+ M fastapi-application/core/config.py
+ M fastapi-application/db_core/__init__.py
+ M fastapi-application/md_articles/__init__.py
+ M fastapi-application/md_articles/models.py
+ M fastapi-application/md_articles/routes_articles.py
+ M fastapi-application/md_articles/routes_main.py
+ M fastapi-application/md_articles/routes_users.py
+ M fastapi-application/md_articles/web_utils.py
+ M fastapi-application/templates/login.html
+ M fastapi-application/templates/register.html
+ M pyproject.toml
+ M uv.lock
+?? fastapi-application/_tmp_qa7_account.b
+?? fastapi-application/_tmp_qa7_account.h
+?? fastapi-application/_tmp_qa7_anon_account.b
+?? fastapi-application/_tmp_qa7_anon_account.h
+?? fastapi-application/_tmp_qa7_anon_art_manage.b
+?? fastapi-application/_tmp_qa7_anon_art_manage.h
+?? fastapi-application/_tmp_qa7_art_manage.b
+?? fastapi-application/_tmp_qa7_art_manage.h
+?? fastapi-application/_tmp_qa7_auth_users_me.b
+?? fastapi-application/_tmp_qa7_auth_users_me.h
+?? fastapi-application/_tmp_qa7_final_account.b
+?? fastapi-application/_tmp_qa7_final_account.h
+?? fastapi-application/_tmp_qa7_final_anon_account.b
+?? fastapi-application/_tmp_qa7_final_anon_account.h
+?? fastapi-application/_tmp_qa7_final_anon_art_manage.b
+?? fastapi-application/_tmp_qa7_final_anon_art_manage.h
+?? fastapi-application/_tmp_qa7_final_art_manage.b
+?? fastapi-application/_tmp_qa7_final_art_manage.h
+?? fastapi-application/_tmp_qa7_final_auth_users_me.b
+?? fastapi-application/_tmp_qa7_final_auth_users_me.h
+?? fastapi-application/alembic/versions/2026-09-13_00-00--a1c2d3e4f5a6--fastapi_users_blog_user.py
+?? fastapi-application/core/users.py
+?? fastapi-application/md_articles/schema_users.py
+?? tasks/current/REQUIREMENTS.md
+?? tasks/current/dev/phase01_progress.md
+?? tasks/current/dev/phase02_progress.md
+?? tasks/current/dev/phase03_progress.md
+?? tasks/current/dev/phase04_progress.md
+?? tasks/current/dev/phase05_progress.md
+?? tasks/current/dev/phase06_progress.md
+?? tasks/current/e2e/phase07_bcrypt_existing_user.txt
+?? tasks/current/e2e/phase07_openapi.txt
+?? tasks/current/e2e/phase07_password_policy.txt
+?? tasks/current/e2e/phase07_preflight.txt
+?? tasks/current/e2e/phase07_regression_scope.txt
+?? tasks/current/e2e/phase07_runtime_auth.txt
+?? tasks/current/e2e/phase07_scope.txt
+=== product scope classification ===
+nonproduct_metadata=.codebase-memory/artifact.json
+nonproduct_metadata=.codebase-memory/graph.db.zst
+requested_product=fastapi-application/core/config.py
+requested_product=fastapi-application/db_core/__init__.py
+requested_product=fastapi-application/md_articles/__init__.py
+requested_product=fastapi-application/md_articles/models.py
+requested_product=fastapi-application/md_articles/routes_articles.py
+requested_product=fastapi-application/md_articles/routes_main.py
+requested_product=fastapi-application/md_articles/routes_users.py
+requested_product=fastapi-application/md_articles/web_utils.py
+requested_product=fastapi-application/templates/login.html
+requested_product=fastapi-application/templates/register.html
+requested_product=pyproject.toml
+requested_product=uv.lock
+unexpected=fastapi-application/_tmp_qa7_account.b
+unexpected=fastapi-application/_tmp_qa7_account.h
+unexpected=fastapi-application/_tmp_qa7_anon_account.b
+unexpected=fastapi-application/_tmp_qa7_anon_account.h
+unexpected=fastapi-application/_tmp_qa7_anon_art_manage.b
+unexpected=fastapi-application/_tmp_qa7_anon_art_manage.h
+unexpected=fastapi-application/_tmp_qa7_art_manage.b
+unexpected=fastapi-application/_tmp_qa7_art_manage.h
+unexpected=fastapi-application/_tmp_qa7_auth_users_me.b
+unexpected=fastapi-application/_tmp_qa7_auth_users_me.h
+unexpected=fastapi-application/_tmp_qa7_final_account.b
+unexpected=fastapi-application/_tmp_qa7_final_account.h
+unexpected=fastapi-application/_tmp_qa7_final_anon_account.b
+unexpected=fastapi-application/_tmp_qa7_final_anon_account.h
+unexpected=fastapi-application/_tmp_qa7_final_anon_art_manage.b
+unexpected=fastapi-application/_tmp_qa7_final_anon_art_manage.h
+unexpected=fastapi-application/_tmp_qa7_final_art_manage.b
+unexpected=fastapi-application/_tmp_qa7_final_art_manage.h
+unexpected=fastapi-application/_tmp_qa7_final_auth_users_me.b
+unexpected=fastapi-application/_tmp_qa7_final_auth_users_me.h
+requested_product=fastapi-application/alembic/versions/2026-09-13_00-00--a1c2d3e4f5a6--fastapi_users_blog_user.py
+requested_product=fastapi-application/core/users.py
+requested_product=fastapi-application/md_articles/schema_users.py
+qa_artifact=tasks/current/REQUIREMENTS.md
+qa_artifact=tasks/current/dev/phase01_progress.md
+qa_artifact=tasks/current/dev/phase02_progress.md
+qa_artifact=tasks/current/dev/phase03_progress.md
+qa_artifact=tasks/current/dev/phase04_progress.md
+qa_artifact=tasks/current/dev/phase05_progress.md
+qa_artifact=tasks/current/dev/phase06_progress.md
+qa_artifact=tasks/current/e2e/phase07_bcrypt_existing_user.txt
+qa_artifact=tasks/current/e2e/phase07_openapi.txt
+qa_artifact=tasks/current/e2e/phase07_password_policy.txt
+qa_artifact=tasks/current/e2e/phase07_preflight.txt
+qa_artifact=tasks/current/e2e/phase07_regression_scope.txt
+qa_artifact=tasks/current/e2e/phase07_runtime_auth.txt
+qa_artifact=tasks/current/e2e/phase07_scope.txt

@@ -1,0 +1,12 @@
+=== QA phase 7 corrected account CSRF raw evidence ===
+Command: login with auth cookie; GET /account with -c/-b to preserve SessionMiddleware cookie; POST account with missing, wrong, valid CSRF.
+login_status=204
+account_get_status=200 csrf_len=64 session_jar_entries=1
+missing status=403 body={"detail":"CSRF token mismatch"}
+db_user8 after missing=(8, 'qa_phase7_1789285536@example.com', 'qa_phase7_1789285536', 97)
+wrong status=403 body={"detail":"CSRF token mismatch"}
+db_user8 after wrong=(8, 'qa_phase7_1789285536@example.com', 'qa_phase7_1789285536', 97)
+valid status=200 location=/account body_bytes=16695
+db_user8 after valid=(8, 'qa_phase7_1789285536@example.com', 'qa_phase7_1789285536', 97)
+after_valid_get_status=200 old_user_present=no new_user_present=yes new_email_present=yes
+Expected: missing/wrong CSRF gives 403 and no mutation; valid current token works. Result: PASS.

@@ -1,0 +1,46 @@
+=== QA phase 7 runtime auth raw evidence ===
+server_probe=200
+test_user=qa7final test_email=qa7final_1789285952@example.com
+--- COMMAND: GET /register with cookie jar, extract hidden csrf ---
+HTTP=200 csrf_len=64 session_jar_lines=1
+--- COMMAND: POST /register valid form-data + csrf ---
+HTTP/1.1 303 See Other
+date: Sun, 13 Sep 2026 07:52:31 GMT
+server: uvicorn
+content-length: 0
+location: /login
+set-cookie: session=<REDACTED>; path=/; Max-Age=1209600; httponly; samesite=lax
+
+body_bytes=0
+db_target= (9, 'qa7final_1789285952@example.com', 'qa7final', 97)
+--- COMMAND: duplicate POST /register, same email/username ---
+HTTP=200 body_bytes=16655 error_markers=['That username is taken. Please choose a different one.', 'That email is taken. Please choose a different one.']
+--- COMMAND: POST /auth/cookie/login form-urlencoded, no csrf ---
+HTTP/1.1 204 No Content
+date: Sun, 13 Sep 2026 07:52:32 GMT
+server: uvicorn
+set-cookie: auth=<REDACTED>; HttpOnly; Max-Age=3600; Path=/; SameSite=lax
+
+body_bytes=0 body_raw=
+--- COMMAND: invalid credentials ---
+HTTP=400 body={"detail":"LOGIN_BAD_CREDENTIALS"}
+--- COMMAND: authenticated API/SSR, anonymous, tampered cookie ---
+authenticated path=/auth/users/me HTTP=200 body_bytes=157 location=
+body={"id":9,"email":"qa7final_1789285952@example.com","is_active":true,"is_superuser":false,"is_verified":false,"username":"qa7final","image_file":"default.jpg"}
+authenticated path=/account HTTP=200 body_bytes=16483 location=
+authenticated path=/art_manage HTTP=200 body_bytes=226651 location=
+anonymous path=/account HTTP=303 location=/login?next=/account body_bytes=22
+anonymous path=/art_manage HTTP=303 location=/login?next=/art_manage body_bytes=22
+tampered HTTP=303 location=/login?next=/account body_bytes=22
+--- COMMAND: GET /logout with auth jar ---
+HTTP/1.1 303 See Other
+date: Sun, 13 Sep 2026 07:52:32 GMT
+server: uvicorn
+content-length: 0
+location: /art_home
+set-cookie: auth=<REDACTED>; Path=/; Max-Age=0; SameSite=Lax; HttpOnly
+set-cookie: session=<REDACTED>; path=/; Max-Age=1209600; httponly; samesite=lax
+
+body_bytes=0
+after_logout_account HTTP=303 location=/login?next=/account body_bytes=22
+=== raw evidence complete ===

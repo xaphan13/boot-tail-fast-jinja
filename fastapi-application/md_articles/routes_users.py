@@ -9,22 +9,23 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from fastapi.responses import RedirectResponse
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_users.exceptions import InvalidPasswordException, UserAlreadyExists
+from pydantic import BaseModel, EmailStr, ValidationError, field_validator
 from PIL import Image
-from pydantic import BaseModel, EmailStr, field_validator
 from sqlalchemy import select
 
 from config_log import logF
+from core.users import auth_backend, get_logout_cookie_value
 from db_core.db_async import CurrentSession
-from md_articles.models import BlogUser
+from md_articles.models import BlogUser, UserManager, get_user_manager
+from md_articles.schema_users import UserCreate
 from md_articles.web_utils import (
     flash,
-    hash_password,
-    login_user,
-    logout_user,
+    get_current_user,
     render_template,
     require_login,
     validate_csrf,
-    verify_password,
 )
 
 
@@ -162,8 +163,11 @@ async def _email_exists(session: CurrentSession, email: str) -> bool:
 # +++++++++++++++++++++++++++++++ register +++++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_users.get("/register", name="users.register")
-async def register_get(request: Request):
-    if getattr(request.state, "current_user", None) is not None:
+async def register_get(
+    request: Request,
+    user: BlogUser | None = Depends(get_current_user),
+):
+    if user is not None:
         return RedirectResponse("/art_home", status_code=303)
     return render_template(
         "register.html",
@@ -179,6 +183,8 @@ async def register_get(request: Request):
 async def register_post(
     request: Request,
     session: CurrentSession,
+    user_manager: UserManager = Depends(get_user_manager),
+    user: BlogUser | None = Depends(get_current_user),
     username: Annotated[str, Form()] = "",
     email: Annotated[str, Form()] = "",
     password: Annotated[str, Form()] = "",
@@ -186,7 +192,7 @@ async def register_post(
 ):
     await validate_csrf(request)
 
-    if getattr(request.state, "current_user", None) is not None:
+    if user is not None:
         return RedirectResponse("/art_home", status_code=303)
 
     errors = await _validate_registration(session, username, email, password, confirm_password)
@@ -203,12 +209,41 @@ async def register_post(
             status_code=200,
         )
 
-    hashed_password = hash_password(password)
-    user = BlogUser(username=username.strip(), email=email.strip(), password=hashed_password)
-    logF.info(f"register = {user}")
-    session.add(user)
-    await session.commit()
+    try:
+        user_create = UserCreate(
+            username=username.strip(),
+            email=email.strip(),
+            password=password,
+        )
+        created_user = await user_manager.create(user_create, safe=True, request=request)
+    except (ValidationError, InvalidPasswordException) as exc:
+        errors = {"password": [getattr(exc, "reason", "Invalid registration data.")]}
+        return render_template(
+            "register.html",
+            {
+                "request": request,
+                "title": "Register",
+                "form": _build_register_form_context(
+                    username, email, password, confirm_password, errors
+                ),
+            },
+            status_code=200,
+        )
+    except UserAlreadyExists:
+        errors = {"email": [_ERROR_EMAIL_TAKEN]}
+        return render_template(
+            "register.html",
+            {
+                "request": request,
+                "title": "Register",
+                "form": _build_register_form_context(
+                    username, email, password, confirm_password, errors
+                ),
+            },
+            status_code=200,
+        )
 
+    logF.info("register = %s", created_user)
     flash(request, "Your account has been created! You are now able to log in", "success")
     return RedirectResponse("/login", status_code=303)
 
@@ -283,8 +318,11 @@ def _build_register_form_context(
 # ++++++++++++++++++++++++++++++++ login +++++++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_users.get("/login", name="users.login")
-async def login_get(request: Request):
-    if getattr(request.state, "current_user", None) is not None:
+async def login_get(
+    request: Request,
+    user: BlogUser | None = Depends(get_current_user),
+):
+    if user is not None:
         return RedirectResponse("/art_home", status_code=303)
     return render_template(
         "login.html",
@@ -299,14 +337,15 @@ async def login_get(request: Request):
 @router_users.post("/login", name="users.login")
 async def login_post(
     request: Request,
-    session: CurrentSession,
+    user_manager: UserManager = Depends(get_user_manager),
+    user: BlogUser | None = Depends(get_current_user),
     email: Annotated[str, Form()] = "",
     password: Annotated[str, Form()] = "",
     remember: Annotated[bool, Form()] = False,
 ):
     await validate_csrf(request)
 
-    if getattr(request.state, "current_user", None) is not None:
+    if user is not None:
         return RedirectResponse("/art_home", status_code=303)
 
     errors: dict[str, list[str]] = {}
@@ -315,17 +354,23 @@ async def login_post(
     if not password:
         errors.setdefault("password", []).append("This field is required.")
 
-    user = None
-    if email:
-        result = await session.execute(select(BlogUser).where(BlogUser.email == email.strip()))
-        user = result.scalar_one_or_none()
+    authenticated_user = None
+    if not errors:
+        credentials = OAuth2PasswordRequestForm(username=email.strip(), password=password)
+        authenticated_user = await user_manager.authenticate(credentials)
 
-    if user and verify_password(password, user.password):
-        login_user(request, user.id)
-        next_page = request.query_params.get("next", "")
-        if next_page.startswith("/") and not next_page.startswith("//"):
-            return RedirectResponse(next_page, status_code=303)
-        return RedirectResponse("/art_home", status_code=303)
+    if authenticated_user is not None and authenticated_user.is_active:
+        login_response = await auth_backend.login(auth_backend.get_strategy(), authenticated_user)
+        if login_response.headers.get("set-cookie"):
+            next_page = request.query_params.get("next", "")
+            if next_page.startswith("/") and not next_page.startswith("//"):
+                redirect_url = next_page
+            else:
+                redirect_url = "/art_home"
+            response = RedirectResponse(redirect_url, status_code=303)
+            response.headers["set-cookie"] = login_response.headers["set-cookie"]
+            await user_manager.on_after_login(authenticated_user, request, response)
+            return response
 
     flash(request, "Login Unsuccessful. Please check email and password", "danger")
     return render_template(
@@ -369,16 +414,16 @@ def _build_login_form_context(
 # ------------------------------------------------------------------------------
 @router_users.get("/logout", name="users.logout")
 async def logout(request: Request):
-    logout_user(request)
-    return RedirectResponse("/art_home", status_code=303)
+    response = RedirectResponse("/art_home", status_code=303)
+    response.headers["set-cookie"] = get_logout_cookie_value()
+    return response
 
 
 # ==============================================================================
 # ++++++++++++++++++++++++++++++++ account +++++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_users.get("/account", name="users.account")
-async def account_get(request: Request, _user=Depends(require_login)):
-    current_user = request.state.current_user
+async def account_get(request: Request, current_user: BlogUser = Depends(require_login)):
     return render_template(
         "account.html",
         {
@@ -394,13 +439,12 @@ async def account_get(request: Request, _user=Depends(require_login)):
 async def account_post(
     request: Request,
     session: CurrentSession,
-    _user=Depends(require_login),
+    current_user: BlogUser = Depends(require_login),
     username: Annotated[str, Form()] = "",
     email: Annotated[str, Form()] = "",
     picture: Annotated[UploadFile, File()] = None,
 ):
     await validate_csrf(request)
-    current_user = request.state.current_user
 
     errors = await _validate_account(session, current_user, username, email)
     if errors:

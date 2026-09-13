@@ -1,0 +1,30 @@
+=== QA phase 7 preflight raw evidence ===
+Missing requested files: tasks/current/dev/phase1_progress.md through phase6_progress.md.
+Actual files read: tasks/current/dev/phase01_progress.md through phase06_progress.md.
+Initial server probe: pgrep -af "uvicorn.*main:main_app" -> no existing server; curl /openapi.json -> connection refused.
+QA server: started from fastapi-application with ../.venv/bin/uvicorn main:main_app --host 127.0.0.1 --port 8000; PID 778499; readiness curl /openapi.json -> 200.
+=== C1 ===
+Command: uv lock --check && uv run ruff check .
+Raw result:
+All checks passed!
+lock_rc=0 ruff_rc=0
+=== C2 ===
+Command: cd fastapi-application && ../.venv/bin/python import main_app/routes
+Raw result:
+route_count=50
+required_missing=[]
+required_present=['/account', '/api/v1/dep_examples/single-direct-dependency', '/art_home', '/auth/cookie/login', '/auth/cookie/logout', '/auth/users/me', '/docs', '/login', '/logout', '/orders/get_all_orders', '/register', '/static', '/users/get_all_users']
+import_rc=0
+=== C3 ===
+Command: ../.venv/bin/alembic upgrade heads (twice)
+Raw result:
+upgrade1_rc=0 upgrade2_rc=0
+columns=[('id', 'INTEGER', None), ('username', 'VARCHAR(20)', None), ('email', 'VARCHAR(120)', None), ('image_file', 'VARCHAR(20)', None), ('hashed_password', 'VARCHAR(1024)', None), ('is_active', 'BOOLEAN', '1'), ('is_superuser', 'BOOLEAN', '0'), ('is_verified', 'BOOLEAN', '0')]
+required_columns=['hashed_password', 'is_active', 'is_superuser', 'is_verified']
+foreign_keys=[{'name': 'fk_blog_post_user_id_blog_user', 'constrained_columns': ['user_id'], 'referred_schema': None, 'referred_table': 'blog_user', 'referred_columns': ['id'], 'options': {}}]
+user_count=7 before runtime registration
+identities=[(1, 'aaa@mail.ru', 'aaa'), (2, 'qqq@mail.ru', 'qqq@mail.ru'), (3, 'qa@example.com', 'qa_tester'), (4, 'adv_1789139086@example.com', 'adv_1789139086'), (5, 'phase01_user@example.com', 'phase01_user'), (6, 'phase02_user@example.com', 'phase02_user'), (7, 'qa_user2@example.com', 'qa_user2')]
+hashes=[(1, 60, '$2b$'), (2, 60, '$2b$'), (3, 60, '$2b$'), (4, 60, '$2b$'), (5, 60, '$2b$'), (6, 60, '$2b$'), (7, 60, '$2b$')]
+flags=[(1, 1, 0, 0), (2, 1, 0, 0), (3, 1, 0, 0), (4, 1, 0, 0), (5, 1, 0, 0), (6, 1, 0, 0), (7, 1, 0, 0)]
+=== C13 scope observation ===
+Tracked product changes are within requested auth/config/dependency/template files. .codebase-memory/artifact.json and .codebase-memory/graph.db.zst changed as indexing metadata, not product code. Runtime QA created temporary _tmp_qa7_* files in fastapi-application; these are removed by the final cleanup command.

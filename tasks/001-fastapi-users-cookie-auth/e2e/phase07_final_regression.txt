@@ -1,0 +1,11 @@
+=== QA phase 7 final regression raw output ===
+Commands: exact URLs plus valid required parameters for demo endpoints.
+docs HTTP=200 body_bytes=961
+users_get_all HTTP=200 body=[]
+orders_get_all exact HTTP=422 body={"detail":[{"type":"missing","loc":["query","params"],"msg":"Field required","input":null}]}
+dep_single exact HTTP=422 body={"detail":[{"type":"missing","loc":["header","foobar"],"msg":"Field required","input":null}]}
+orders_get_all?params=id HTTP=200 body=[]
+dep_single with foobar header HTTP=200 body={"foobar":"qa","message":"single direct dependency foobar"}
+art_home HTTP=200 body_bytes=73595
+static_css HTTP=200 content_type=text/css; charset=utf-8 body_bytes=14511
+Expected: old routes remain available; exact demo URLs preserve their pre-existing required-parameter 422 contract, valid requests return 200. Result: PASS.

@@ -6,13 +6,16 @@
   <div class="max-w-md mx-auto">
     <div class="bg-surface border border-line rounded-2xl shadow-lg shadow-black/10 p-8">
 
-      <form method="POST" action="">
+      <form method="POST" action="/auth/cookie/login">
 
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
+        {% set login_username = form.email.copy() %}
+        {% set _ = login_username.update({"name": "username", "id": "username"}) %}
+
         <h1 class="text-2xl font-bold text-heading mb-6">Вход</h1>
 
-        {{ field_with_errors(form.email) }}
+        {{ field_with_errors(login_username) }}
         {{ field_with_errors(form.password) }}
 
         <div class="flex items-center gap-2 mb-6">
@@ -27,6 +30,27 @@
         </button>
 
       </form>
+
+      <script>
+        document.querySelector('form[action="/auth/cookie/login"]').addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          try {
+            const response = await fetch(form.action, {
+              method: form.method,
+              body: new FormData(form),
+              credentials: "same-origin",
+            });
+            if (response.status === 204) {
+              window.location.assign("/art_home");
+            } else {
+              window.location.reload();
+            }
+          } catch (_error) {
+            window.location.reload();
+          }
+        });
+      </script>
     </div>
   </div>
 

@@ -1,0 +1,10 @@
+=== Existing bcrypt user login after migration ===
+Command: inspect hash, POST /auth/cookie/login form-urlencoded without CSRF, inspect hash again
+before= (6, 'phase02_user@example.com', 60, '$2b$')
+HTTP/1.1 204 No Content
+date: Sun, 13 Sep 2026 07:53:53 GMT
+server: uvicorn
+set-cookie: auth=<REDACTED>; HttpOnly; Max-Age=3600; Path=/; SameSite=lax
+
+body_bytes=0
+after= (6, 'phase02_user@example.com', 97, '$argon2id')

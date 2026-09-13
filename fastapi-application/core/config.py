@@ -47,6 +47,14 @@ class WebConfig(BaseModel):
     secret_key: str = "dev-insecure-secret-key-change-me"
 
 
+class AuthConfig(BaseModel):
+    secret_key: str = "dev-insecure-auth-secret-key-change-me"
+    cookie_name: str = "auth"
+    cookie_max_age: int = 3600
+    cookie_secure: bool = False
+    cookie_samesite: Literal["lax", "strict", "none"] = "lax"
+
+
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
     dep_examples: str = "/dep_examples"
@@ -107,6 +115,7 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     web: WebConfig = WebConfig()
+    auth: AuthConfig = AuthConfig()
 
     db: DatabaseConfig
 

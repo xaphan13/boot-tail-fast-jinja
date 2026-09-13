@@ -2,11 +2,11 @@
 # +++++++++++++++++++++++++++++++ routes_main ++++++++++++++++++++++++++++++++++
 # --------------------------- /, /home, /about ---------------------------------
 # ------------------------------------------------------------------------------
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 
 from config_log import logF
-from md_articles.web_utils import flash, render_template
+from md_articles.web_utils import flash, get_current_user, render_template
 
 
 router_main = APIRouter(
@@ -27,7 +27,10 @@ async def home():
 # +++++++++++++++++++++++++++++++ about ++++++++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
 @router_main.get("/about", name="main.about")
-async def about(request: Request):
+async def about(
+    request: Request,
+    _user=Depends(get_current_user),
+):
     logF.info("'about'")
     flash(request, "About flash message! - success", "success")
     flash(request, "About flash message! - danger", "danger")

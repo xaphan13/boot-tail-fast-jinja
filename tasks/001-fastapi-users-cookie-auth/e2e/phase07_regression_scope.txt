@@ -1,0 +1,91 @@
+=== account csrf mutation proof ===
+login_for_account_status=204
+account_get_status=200 csrf_len=64
+db_user8= (8, 'qa_phase7_1789285536@example.com', 'qa_phase7_1789285536', 97)
+account_csrf_missing status=403 location= body_bytes=32
+body= {"detail":"CSRF token mismatch"}
+db_user8= (8, 'qa_phase7_1789285536@example.com', 'qa_phase7_1789285536', 97)
+account_csrf_wrong status=403 location= body_bytes=32
+body= {"detail":"CSRF token mismatch"}
+db_user8= (8, 'qa_phase7_1789285536@example.com', 'qa_phase7_1789285536', 97)
+account_csrf_valid status=403 location= body_bytes=32
+body= {"detail":"CSRF token mismatch"}
+db_user8= (8, 'qa_phase7_1789285536@example.com', 'qa_phase7_1789285536', 97)
+account_after_valid_status=200 new_username_present=no new_email_present=no
+=== regression endpoints ===
+docs status=200 content_type=text/html; charset=utf-8 body_bytes=961 location=
+body_prefix= \n    <!DOCTYPE html>\n    <html>\n    <head>\n    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">\n    <link rel="shortcut icon" href="https://fastapi.tiangolo.com
+users_get_all status=200 content_type=application/json body_bytes=2 location=
+body_prefix= []
+orders_get_all status=200 content_type=application/json body_bytes=2 location=
+body_prefix= []
+dep_single status=200 content_type=application/json body_bytes=59 location=
+body_prefix= {"foobar":"qa","message":"single direct dependency foobar"}
+art_home status=200 content_type=text/html; charset=utf-8 body_bytes=73595 location=
+body_prefix= <!DOCTYPE html>\n<html lang="ru" data-theme="dark">\n  <head>\n    <!-- Required meta tags -->\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">\n  <meta name="
+static_css status=200 content_type=text/css; charset=utf-8 body_bytes=14511 location=
+body_prefix= /* Единый файл стилей блога на CSS-переменных для 4 тем: dark, light,\n   midnight, aurora. Тема выбирается атрибутом data-theme на <html>\n   (инлайн-скрипт в _head.html восстанавливает выбор из localStorage\n   до загрузк
+=== application log checks ===
+log_exists=yes log_bytes=636698
+plaintext_test_password_matches=0
+jwt_like_value_matches=0
+bearer_token_matches=0
+auth_cookie_value_matches=0
+log_contains_runtime_request= False
+log_tail= _name': 'Sql Alchemy/backend-dev.ru.md'}, {'author': 'NoName', 'lang': 'Sql Alchemy', 'art_id': 1788346038, 'title': 'codex-onefast-review', 'file_name': 'Sql Alchemy/codex-onefast-review.md'}, {'author': 'NoName', 'lang': 'Sql Alchemy', 'art_id': 1788346039, 'title': 'frontend-dev.ru', 'file_name': 'Sql Alchemy/frontend-dev.ru.md'}, {'author': 'NoName', 'lang': 'Sql Alchemy', 'art_id': 1788346040, 'title': 'orchestrator.ru', 'file_name': 'Sql Alchemy/orchestrator.ru.md'}, {'author': 'NoName', 'lang': 'Sql Alchemy', 'art_id': 1788346041, 'title': 'qa.ru', 'file_name': 'Sql Alchemy/qa.ru.md'}]\n
+=== git diff scope ===
+ M .codebase-memory/artifact.json
+ M .codebase-memory/graph.db.zst
+ M fastapi-application/core/config.py
+ M fastapi-application/db_core/__init__.py
+ M fastapi-application/md_articles/__init__.py
+ M fastapi-application/md_articles/models.py
+ M fastapi-application/md_articles/routes_articles.py
+ M fastapi-application/md_articles/routes_main.py
+ M fastapi-application/md_articles/routes_users.py
+ M fastapi-application/md_articles/web_utils.py
+ M fastapi-application/templates/login.html
+ M fastapi-application/templates/register.html
+ M pyproject.toml
+ M uv.lock
+?? fastapi-application/_tmp_qa7_account.b
+?? fastapi-application/_tmp_qa7_account.h
+?? fastapi-application/_tmp_qa7_anon_account.b
+?? fastapi-application/_tmp_qa7_anon_account.h
+?? fastapi-application/_tmp_qa7_anon_art_manage.b
+?? fastapi-application/_tmp_qa7_anon_art_manage.h
+?? fastapi-application/_tmp_qa7_art_manage.b
+?? fastapi-application/_tmp_qa7_art_manage.h
+?? fastapi-application/_tmp_qa7_auth_users_me.b
+?? fastapi-application/_tmp_qa7_auth_users_me.h
+?? fastapi-application/alembic/versions/2026-09-13_00-00--a1c2d3e4f5a6--fastapi_users_blog_user.py
+?? fastapi-application/core/users.py
+?? fastapi-application/md_articles/schema_users.py
+?? tasks/current/REQUIREMENTS.md
+?? tasks/current/dev/phase01_progress.md
+?? tasks/current/dev/phase02_progress.md
+?? tasks/current/dev/phase03_progress.md
+?? tasks/current/dev/phase04_progress.md
+?? tasks/current/dev/phase05_progress.md
+?? tasks/current/dev/phase06_progress.md
+?? tasks/current/e2e/phase07_preflight.txt
+?? tasks/current/e2e/phase07_regression_scope.txt
+--- tracked product diff names ---
+fastapi-application/core/config.py
+fastapi-application/db_core/__init__.py
+fastapi-application/md_articles/__init__.py
+fastapi-application/md_articles/models.py
+fastapi-application/md_articles/routes_articles.py
+fastapi-application/md_articles/routes_main.py
+fastapi-application/md_articles/routes_users.py
+fastapi-application/md_articles/web_utils.py
+fastapi-application/templates/login.html
+fastapi-application/templates/register.html
+pyproject.toml
+uv.lock
+--- requested product files present in status ---
+  File "<string>", line 1
+    import sys; requested={"pyproject.toml","uv.lock","fastapi-application/core/config.py","fastapi-application/core/users.py","fastapi-application/md_articles/models.py","fastapi-application/md_articles/schema_users.py","fastapi-application/db_core/__init__.py","fastapi-application/md_articles/web_utils.py","fastapi-application/md_articles/__init__.py","fastapi-application/md_articles/routes_users.py","fastapi-application/md_articles/routes_main.py","fastapi-application/md_articles/routes_articles.py","fastapi-application/alembic/versions/2026-09-13_00-00--a1c2d3e4f5a6--fastapi_users_blog_user.py","fastapi-application/templates/login.html","fastapi-application/templates/register.html","fastapi-application/templates/layout.html"}; paths=[]; unexpected=[]; metadata=[];\nfor line in sys.stdin:\n p=line[3:].strip() if len(line)>=3 else line.strip();\n if p in requested: paths.append(p)\n elif p.startswith("tasks/current/"): pass\n elif p.startswith(".codebase-memory/"): metadata.append(p)\n elif p.startswith("fastapi-application/") or p in {"pyproject.toml","uv.lock"}: unexpected.append(p)\nprint("requested_present=",sorted(set(paths))); print("unexpected_product=",sorted(set(unexpected))); print("nonproduct_metadata=",sorted(set(metadata))); raise SystemExit(1 if unexpected else 0)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^
+SyntaxError: unexpected character after line continuation character
+scope_product_rc=1

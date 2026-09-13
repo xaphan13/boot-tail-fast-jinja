@@ -22,6 +22,7 @@ from ex_order_product.model_order_product import (
     OrderProductAssociation,
 )
 
+# Импорт модели авторизации наполняет Base.metadata для Alembic.
 from md_articles.models import (
     BlogUser,
     BlogPost,

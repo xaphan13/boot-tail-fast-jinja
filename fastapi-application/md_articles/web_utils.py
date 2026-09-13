@@ -3,19 +3,15 @@
 # ------------------- сессии, Jinja, CSRF, current_user, flash -----------------
 # ------------------------------------------------------------------------------
 import secrets
-from typing import Annotated
 from urllib.parse import quote
 
-import bcrypt
 from fastapi import Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from base_dir_path import BASE_DIR
 from config_log import logF
-from db_core.db_async import CurrentSession
+from core.users import fastapi_users
 from md_articles.models import BlogUser
 from md_articles.schema_art import list_sections
 
@@ -67,38 +63,15 @@ render_template = _render_with_globals
 # ------------------------------------------------------------------------------
 async def get_current_user(
     request: Request,
-    session: CurrentSession,
+    user: BlogUser | None = Depends(fastapi_users.current_user(optional=True)),
 ) -> BlogUser | None:
-    """Получить пользователя из сессии и положить в request.state."""
-    user = await _load_current_user(request, session)
+    """Получить пользователя из JWT-cookie и положить в request.state."""
     request.state.current_user = user
     return user
 
 
-async def _load_current_user(
-    request: Request,
-    session: CurrentSession,
-) -> BlogUser | None:
-    user_id = request.session.get("user_id")
-    if user_id is None:
-        return None
-    result = await session.execute(select(BlogUser).where(BlogUser.id == user_id))
-    return result.scalar_one_or_none()
-
-
 def _get_current_user_from_request(request: Request) -> BlogUser | None:
     return getattr(request.state, "current_user", None)
-
-
-# ==============================================================================
-# +++++++++++++++++++++++++++++ auth helpers +++++++++++++++++++++++++++++++++++
-# ------------------------------------------------------------------------------
-def login_user(request: Request, user_id: int) -> None:
-    request.session["user_id"] = user_id
-
-
-def logout_user(request: Request) -> None:
-    request.session.pop("user_id", None)
 
 
 # ==============================================================================
@@ -138,22 +111,20 @@ async def validate_csrf(request: Request) -> None:
 # ==============================================================================
 # +++++++++++++++++++++++++++++ login guard ++++++++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
-async def require_login(request: Request) -> None:
+async def require_login(
+    request: Request,
+    user: BlogUser | None = Depends(get_current_user),
+) -> BlogUser:
     """Dependency: аноним -> flash + redirect на /login?next=<path>."""
-    if getattr(request.state, "current_user", None) is None:
+    if user is None:
         flash(request, "Нужно авторизоваться или зарегистрироваться", "info")
         next_url = quote(request.url.path, safe="/")
         response = RedirectResponse(f"/login?next={next_url}", status_code=303)
         request.session.setdefault("_flash_dummy", "")
         raise HTTPException(status_code=303, headers={"location": response.headers["location"]})
+    return user
 
 
 # ==============================================================================
 # +++++++++++++++++++++++++++++ password helpers +++++++++++++++++++++++++++++++
 # ------------------------------------------------------------------------------
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
-
-def verify_password(password: str, hashed: str) -> bool:
-    return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
